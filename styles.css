@@ -1,6 +1,5 @@
 :root {
   --color-bg: #f6efe4;
-  --color-bg-alt: #efe2cd;
   --color-text: #2b2420;
   --color-muted: #6b5f52;
   --color-accent: #7a2233;
@@ -132,7 +131,6 @@ section + section::before {
   position: relative;
   padding-top: calc(var(--space) * 3);
   overflow: hidden;
-  background: radial-gradient(ellipse at top, var(--color-bg-alt), var(--color-bg) 80%);
 }
 
 .hero-bg {
