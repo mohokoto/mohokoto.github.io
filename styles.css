@@ -1,0 +1,241 @@
+:root {
+  --color-bg: #f6efe4;
+  --color-bg-alt: #efe2cd;
+  --color-text: #2b2420;
+  --color-muted: #6b5f52;
+  --color-accent: #7a2233;
+  --color-accent-2: #4f6358;
+  --color-gold: #b8945f;
+  --color-gold-text: #7c5e33;
+  --color-border: #ddd0ba;
+  --max-width: 40rem;
+  --space: 1.25rem;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1c1712;
+    --color-bg-alt: #241d17;
+    --color-text: #f1e7d8;
+    --color-muted: #b8ab98;
+    --color-accent: #dd94a1;
+    --color-accent-2: #9db5a8;
+    --color-gold: #d8b789;
+    --color-gold-text: #d8b789;
+    --color-border: #3a2f24;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at top, var(--color-bg-alt), var(--color-bg) 55%);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.65;
+}
+
+h1, h2, h3, .brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--color-gold-text);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-gold-text);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 0.5rem 1rem;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: var(--space);
+  top: var(--space);
+}
+
+.site-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header nav {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space);
+}
+
+.brand {
+  font-size: 1.25rem;
+  text-decoration: none;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+}
+
+.site-header ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  margin: 0;
+  padding: 0;
+}
+
+.site-header a {
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+}
+
+.site-header ul a:hover {
+  text-decoration: underline;
+}
+
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space);
+}
+
+section {
+  padding: calc(var(--space) * 1.75) 0;
+  position: relative;
+}
+
+section + section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3rem;
+  height: 2px;
+  background: var(--color-gold);
+}
+
+.hero {
+  position: relative;
+  padding-top: calc(var(--space) * 3);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(4rem, 24vw, 11rem);
+  color: var(--color-text);
+  opacity: 0.06;
+  white-space: nowrap;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.hero > *:not(.hero-bg) {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  margin: 0 0 0.5rem;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin: 0 0 var(--space);
+}
+
+h3 {
+  font-size: 1.15rem;
+  margin: 0 0 0.25rem;
+}
+
+p {
+  color: var(--color-muted);
+  margin: 0 0 0.75rem;
+}
+
+.tagline {
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+
+.project-list,
+.link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link-list a {
+  color: var(--color-accent-2);
+}
+
+.project-list li,
+.link-list li {
+  margin-bottom: var(--space);
+}
+
+.project-list li:last-child,
+.link-list li:last-child {
+  margin-bottom: 0;
+}
+
+.site-footer {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--color-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
