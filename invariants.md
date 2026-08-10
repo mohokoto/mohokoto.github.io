@@ -20,9 +20,9 @@ they are eventually built, are listed here.
 - **Evolution preserves lineage, not just a log.** It is not sufficient
   to record that a change happened; the relationship between the
   taxonomy before and after the change must be reconstructible.
-- **Projects and Topics remain distinct concepts.** They must not be
+- **Projects and Notes remain distinct concepts.** They must not be
   collapsed into a single taxonomy or treated as interchangeable, even
-  when a Project relates closely to a Topic.
+  when a Project relates closely to one or more Notes.
 - **Semantic and structural evidence are kept conceptually separate.**
   Semantic-similarity signals and structural/MECE signals must not be
   merged into a single undifferentiated score before being reasoned

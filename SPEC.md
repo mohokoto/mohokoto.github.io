@@ -1,8 +1,13 @@
 # Personal Website Specification
 
-> This document specifies the current, initial implementation phase: a
-> static personal homepage. It does not describe the full long-term
-> product direction. See [`product.md`](product.md) for the product
+> This document specifies mohokoto's site requirements in two phases.
+> Sections 1–8 below (**V0**) describe the current, initial
+> implementation — a static personal homepage — which is implemented
+> and live. **Part 2: V1 — Content System**, at the end of this
+> document, adds requirements for writing, editing, and publishing
+> content directly on the site; V1 is specified but not yet
+> implemented. Neither phase describes the full long-term product
+> direction — see [`product.md`](product.md) for the product
 > philosophy this site is the first environment for, and
 > [`invariants.md`](invariants.md) for constraints that must hold
 > regardless of implementation.
@@ -27,7 +32,8 @@ The site provides a simple, durable home for personal information, projects, int
 - CSS3
 - JavaScript only when necessary
 - No framework required
-- No server-side application
+- No server-side application (for V0 — Part 2: V1 Content System below
+  documents a scoped exception for V1 only)
 - GitHub Pages deployment
 - One curated display web font is permitted as a deliberate, documented
   exception to minimal dependencies (see Design Principles), loaded with
@@ -92,3 +98,74 @@ Changes are deployed through the Git repository and GitHub Pages.
 The specification is intentionally minimal.
 
 Additional sections, features, visual direction, and technical requirements may be added as the site evolves.
+
+---
+
+## Part 2: V1 — Content System
+
+> V1 extends the V0 site above with the ability to write, edit, and
+> publish content directly from the site itself. This section documents
+> requirements only — data storage format, API design, and specific
+> technology choices are deferred to a future `design.md`.
+
+### V1.1 Purpose
+
+Enable mohokoto to write, revise, and publish Notes (per `product.md`'s
+Core model) directly through the site, without requiring a separate
+authoring tool or manual git operations.
+
+### V1.2 Scope
+
+- A single authenticated author (mohokoto only) can create and edit
+  content through an in-browser editor on the live site.
+- Visitors (unauthenticated) can only view Published content. Draft
+  content and the editor itself must not be publicly accessible.
+- Topics and Taxonomy (per `product.md`) are explicitly out of scope
+  for V1. The content model must not preclude adding topic association
+  later, but no topic/taxonomy feature is built now.
+
+### V1.3 Content model requirements
+
+A Note has at minimum: a title, a body, a publication status, created
+and last-modified timestamps, and a revision history (see V1.5). The
+exact set of statuses (e.g. whether a third state such as "Unpublished"
+exists alongside Draft/Published) is a design.md decision, not fixed
+here.
+
+### V1.4 Editing and saving
+
+- The author can create a new Note and save it as a Draft at any point,
+  without it being publicly visible.
+- The author can edit an existing Note, published or not.
+- Saving a Draft does not require the content to be complete or valid
+  for publication.
+- Publishing a Note makes it visible to visitors at a stable URL.
+- Published content must be revertible to a non-public state.
+
+### V1.5 Revision
+
+- Content the author explicitly saves is retained as a distinct
+  revision. Automatic/background saving, if ever added, is not required
+  to create a revision on its own.
+- The author must be able to view a Note's revision history.
+- Whether/how a past revision can be restored is not decided here.
+
+### V1.6 Technical baseline (supersedes Section 3 for V1 features only)
+
+- V1 requires authentication (to restrict editing to the author) and
+  persistent storage. V0's "No server-side application" constraint does
+  not hold for V1 — some backend (a hosted API, serverless functions, or
+  a BaaS) is required.
+- V0's already-shipped static pages are unaffected: V1 adds capability,
+  it does not retroactively change how the current site is built or
+  deployed.
+- Specific technology (which backend/BaaS, auth provider, database,
+  hosting alongside GitHub Pages) is not decided here — deferred to
+  `design.md`.
+
+### V1.7 Explicitly not required for V1
+
+- Topics, Taxonomy, taxonomy evolution (`product.md`)
+- AI-assisted authoring features (`product.md`'s AI philosophy)
+- Multi-author support
+- Comments, reactions, or any visitor interaction with published content

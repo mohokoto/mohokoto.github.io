@@ -27,17 +27,31 @@ exists.
 
 ## Core model
 
-The system distinguishes several concepts that are related but must not
-be collapsed into one:
+The system distinguishes different kinds of things a user works with.
+Only two are defined now — the model is deliberately not closed to
+others; see "Open categories" below.
 
-- **Projects** — things being built.
-- **Topics** — things being continuously explored.
-- **Notes / Writings** — the actual content of knowledge.
-- **Taxonomy** — the evolving structure that organizes Topics.
+- **Projects** — things being built. A Project has its own lifecycle
+  (started, in progress, shipped or archived), independent of any Topic.
+- **Notes** — the atomic unit of written content: what the user actually
+  writes, across whatever range of subjects. Notes are organized by
+  Topics, and Topics are structured by an evolving Taxonomy (see
+  Evolving taxonomy, below). Topics and Taxonomy are not themselves a
+  kind of thing the user creates the way Projects and Notes are — they
+  are the organizing structure Notes are placed into, and that
+  structure is what evolves.
 
-These are not forced into a single unified taxonomy. A Project can relate
-to one or more Topics, and Notes can belong to Topics, but Projects and
-Topics remain distinct kinds of things with distinct lifecycles.
+A Project may relate to one or more Notes, but Projects and Notes remain
+distinct: a Project is a bounded thing being built; a Note is a piece of
+writing organized by an evolving topic structure, not necessarily tied
+to any project.
+
+### Open categories
+
+Projects and Notes are the only categories this document requires.
+Whether other peer categories exist — and what they would be called — is
+explicitly undecided. This list is not exhaustive and should not be
+treated as a closed set the product is forced into.
 
 ## AI philosophy
 
