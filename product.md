@@ -112,7 +112,8 @@ qualitatively distinct kinds of signal are considered separately:
 These three are kept conceptually distinct from each other. They are not
 collapsed into a single blended score. How each is computed, and how
 they are combined into an actual proposal, is an algorithm-level decision
-deferred to `design.md`.
+deferred to future implementation-design discussion (tracked as GitHub
+Issues, not a separate design document).
 
 ## Human authority
 
@@ -164,7 +165,8 @@ probably server-side components — that is out of scope for now.
 ## Out of scope
 
 The following are explicitly not decided by this document and are left
-for a future `design.md`:
+for future implementation-design discussion, tracked as GitHub Issues
+rather than a separate design document:
 
 - Database schema
 - API design

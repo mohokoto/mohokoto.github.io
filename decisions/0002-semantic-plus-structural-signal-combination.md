@@ -35,8 +35,9 @@ covers.
   motivated them, rather than an opaque score.
 - This is a *conceptual* commitment, not an algorithm. The exact
   computation for each signal, and how they are combined into an actual
-  proposal, is deliberately left to a future `design.md` — see
-  `product.md`'s "Out of scope".
+  proposal, is deliberately left to future implementation-design
+  discussion (tracked as a GitHub Issue, not a separate design
+  document) — see `product.md`'s "Out of scope".
 - `invariants.md` records the narrower, durable version of this decision:
   semantic and structural evidence must be kept conceptually distinct,
   regardless of how each is eventually computed.

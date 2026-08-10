@@ -36,4 +36,6 @@ of how confident the underlying signal is.
 - This does not preclude a future design where sufficiently trusted
   proposal types require less friction (e.g. lighter-weight confirmation)
   — it precludes the taxonomy becoming authoritative for a change the
-  user never saw. That distinction is left for `design.md`.
+  user never saw. That distinction is left for future implementation-
+  design discussion, tracked as a GitHub Issue rather than a separate
+  design document.

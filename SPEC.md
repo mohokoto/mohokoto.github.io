@@ -106,7 +106,9 @@ Additional sections, features, visual direction, and technical requirements may 
 > V1 extends the V0 site above with the ability to write, edit, and
 > publish content directly from the site itself. This section documents
 > requirements only — data storage format, API design, and specific
-> technology choices are deferred to a future `design.md`.
+> technology choices are deferred to future implementation-design
+> discussion, tracked as GitHub Issues rather than a separate design
+> document.
 
 ### V1.1 Purpose
 
@@ -129,8 +131,8 @@ authoring tool or manual git operations.
 A Note has at minimum: a title, a body, a publication status, created
 and last-modified timestamps, and a revision history (see V1.5). The
 exact set of statuses (e.g. whether a third state such as "Unpublished"
-exists alongside Draft/Published) is a design.md decision, not fixed
-here.
+exists alongside Draft/Published) is an implementation-design decision
+(tracked as a GitHub Issue), not fixed here.
 
 ### V1.4 Editing and saving
 
@@ -161,7 +163,8 @@ here.
   deployed.
 - Specific technology (which backend/BaaS, auth provider, database,
   hosting alongside GitHub Pages) is not decided here — deferred to
-  `design.md`.
+  implementation-design discussion, tracked as a GitHub Issue rather
+  than a separate design document.
 
 ### V1.7 Explicitly not required for V1
 
