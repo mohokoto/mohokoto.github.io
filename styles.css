@@ -14,20 +14,6 @@
   --font-body: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1c1712;
-    --color-bg-alt: #241d17;
-    --color-text: #f1e7d8;
-    --color-muted: #b8ab98;
-    --color-accent: #dd94a1;
-    --color-accent-2: #9db5a8;
-    --color-gold: #d8b789;
-    --color-gold-text: #d8b789;
-    --color-border: #3a2f24;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
