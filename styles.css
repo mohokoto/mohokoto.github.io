@@ -24,7 +24,7 @@ html {
 
 body {
   margin: 0;
-  background: radial-gradient(ellipse at top, var(--color-bg-alt), var(--color-bg) 55%);
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   line-height: 1.65;
@@ -132,6 +132,7 @@ section + section::before {
   position: relative;
   padding-top: calc(var(--space) * 3);
   overflow: hidden;
+  background: radial-gradient(ellipse at top, var(--color-bg-alt), var(--color-bg) 80%);
 }
 
 .hero-bg {
