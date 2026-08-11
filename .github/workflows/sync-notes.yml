@@ -1,0 +1,53 @@
+name: Sync published notes
+
+# Phase 2 of https://github.com/mohokoto/mohokoto.github.io/issues/3
+# Manual trigger only for now (rollout safety plan) — schedule trigger
+# is added later, once several manual runs have been verified.
+#
+# Pulls notes/ from the public notes-published repo and mirrors it into
+# this repo's notes/ directory only. Never touches any other path —
+# this is a code-level safeguard (see issue #3's blast-radius
+# discussion), not a permission-level one, since GitHub Actions
+# permissions cannot be scoped to a path.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout mohokoto.github.io
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          path: site
+
+      - name: Checkout notes-published
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          repository: mohokoto/notes-published
+          path: notes-published
+
+      - name: Sync notes/ directory only
+        run: |
+          set -euo pipefail
+          mkdir -p notes-published/notes
+          mkdir -p site/notes
+          rsync -a --delete notes-published/notes/ site/notes/
+
+      - name: Commit and push if changed
+        working-directory: site
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add notes/
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+            exit 0
+          fi
+          git commit -m "Sync published notes from notes-published"
+          git push
