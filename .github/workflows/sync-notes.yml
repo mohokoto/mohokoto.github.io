@@ -16,6 +16,8 @@ name: Sync published notes
 on:
   workflow_dispatch: {}
   schedule:
+    # Re-touched 2026-08-11 09:41 UTC — schedule wasn't firing after ~45min,
+    # trying a re-commit to nudge GitHub into re-registering the trigger.
     - cron: "*/5 * * * *"
 
 permissions:
