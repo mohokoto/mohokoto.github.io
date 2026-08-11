@@ -1,17 +1,22 @@
 name: Sync published notes
 
 # Phase 2 of https://github.com/mohokoto/mohokoto.github.io/issues/3
-# Manual trigger only for now (rollout safety plan) — schedule trigger
-# is added later, once several manual runs have been verified.
 #
 # Pulls notes/ from the public notes-published repo and mirrors it into
 # this repo's notes/ directory only. Never touches any other path —
 # this is a code-level safeguard (see issue #3's blast-radius
 # discussion), not a permission-level one, since GitHub Actions
 # permissions cannot be scoped to a path.
+#
+# Uses actions/checkout (git clone) rather than the REST API to read
+# notes-published, so this is not subject to the unauthenticated REST
+# API rate limit (60/hour) that was a concern during design — that
+# limit applies to api.github.com calls, not git protocol operations.
 
 on:
   workflow_dispatch: {}
+  schedule:
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
