@@ -156,13 +156,17 @@ ARCHITECTURE.md    (what's actually built, right now — normative, not a plan)
 implementation
 ```
 
-`SPEC.md` currently specifies a static, dependency-free personal
-homepage with no server-side component. That scope is intentionally
-narrow and is not superseded by this document. It describes the first
-phase of the system described here, not the whole of it. Later phases
-(informed by this document and by `invariants.md`) will require their
-own spec work — likely including a design phase and, at that point,
-probably server-side components — that is out of scope for now.
+`SPEC.md` currently specifies a static personal homepage (V0) plus a
+Notes authoring/publishing system (V1, implemented — see
+`ARCHITECTURE.md` for what was actually built, including its
+server-side component). That scope is intentionally narrow — it covers
+writing and publishing Notes, not the Topics/Taxonomy/AI system this
+document describes — and is not superseded by this document. It
+describes the first phase(s) of the system described here, not the
+whole of it. Later phases (informed by this document and by
+`invariants.md`) — Topics, Taxonomy evolution, AI-assisted authoring —
+will require their own spec work, likely including a design phase, and
+remain out of scope for now.
 
 ## Out of scope
 

@@ -5,9 +5,10 @@
 > implementation — a static personal homepage — which is implemented
 > and live. **Part 2: V1 — Content System**, at the end of this
 > document, adds requirements for writing, editing, and publishing
-> content directly on the site; V1 is specified but not yet
-> implemented. Neither phase describes the full long-term product
-> direction — see [`product.md`](product.md) for the product
+> content directly on the site; V1 is now implemented and live as well
+> — see [`ARCHITECTURE.md`](ARCHITECTURE.md) for what was actually
+> built to satisfy it. Neither phase describes the full long-term
+> product direction — see [`product.md`](product.md) for the product
 > philosophy this site is the first environment for, and
 > [`invariants.md`](invariants.md) for constraints that must hold
 > regardless of implementation.

@@ -78,9 +78,9 @@ current intentions, they should be reconsidered for promotion here.
 
 These invariants describe the system `product.md` is building toward,
 not a checklist every current build must already satisfy. The present
-implementation (`SPEC.md`, a static personal homepage) does not yet
-implement taxonomy, evolution, or AI features at all, and is not in
-violation of any invariant above by simply not having built that far
-yet. An invariant is violated by building something that works *against*
-it (e.g. discarding lineage on merge), not by a feature not existing
-yet.
+implementation (`SPEC.md` — a static homepage plus a Notes
+authoring/publishing system, V0+V1) does not yet implement taxonomy,
+evolution, or AI features at all, and is not in violation of any
+invariant above by simply not having built that far yet. An invariant
+is violated by building something that works *against* it (e.g.
+discarding lineage on merge), not by a feature not existing yet.
