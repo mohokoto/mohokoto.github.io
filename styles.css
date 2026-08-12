@@ -220,6 +220,50 @@ p {
   margin-bottom: 0;
 }
 
+/* Notes index (generate_notes_index.py) - deliberately not .link-list:
+   that's shared with the homepage's small GitHub/Email/Now bookmarks,
+   and giving those the same visual weight as this page's actual content
+   archive would undersell the latter. */
+.note-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.note-list li {
+  padding: var(--space) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.note-list li:last-child {
+  border-bottom: none;
+}
+
+.note-list li.empty {
+  color: var(--color-muted);
+  border-bottom: none;
+}
+
+.note-list a {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.note-list a:hover {
+  color: var(--color-accent);
+}
+
+.note-list time {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
 /* Individual Note pages (rendered by the Worker, renderNoteHtml -
    mohokoto.github.io#9): reuse this stylesheet directly rather than
    duplicating it there, since these pages are same-origin (synced into

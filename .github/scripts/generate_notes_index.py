@@ -12,6 +12,7 @@ import html
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 NOTES_DIR = Path("notes")
@@ -21,6 +22,19 @@ NOTES_DIR = Path("notes")
 # text). <h1> is always just the bare escaped title.
 TITLE_RE = re.compile(r"<h1>(.*?)</h1>", re.DOTALL)
 DATE_RE = re.compile(r'<meta\s+name="date"\s+content="([^"]*)"')
+
+
+def format_date(date_str: str) -> str:
+    # This index page is site chrome (like the homepage), not a Note's own
+    # content - it can mix Notes in different languages, so its own dates
+    # follow V0's declared site language (English), not any one Note's
+    # detected content language (that's a Worker-side, per-page concern -
+    # see detectContentLang() in the Worker, mohokoto.github.io#9).
+    try:
+        dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+    except ValueError:
+        return date_str
+    return dt.strftime("%B %-d, %Y")
 
 
 def git_commit_date(path: Path) -> str:
@@ -54,8 +68,8 @@ def collect_notes():
 
 def render(notes) -> str:
     items = "\n".join(
-        f'        <li><a href="/notes/{html.escape(n["slug"])}/">{html.escape(n["title"])}</a> '
-        f'<time datetime="{html.escape(n["date"])}">{html.escape(n["date"][:10])}</time></li>'
+        f'        <li><a href="/notes/{html.escape(n["slug"])}/">{html.escape(n["title"])}</a>'
+        f'<time datetime="{html.escape(n["date"])}">{html.escape(format_date(n["date"]))}</time></li>'
         for n in notes
     )
     if not notes:
@@ -94,7 +108,7 @@ def render(notes) -> str:
   <main id="main">
     <article>
       <h1>Notes</h1>
-      <ul class="link-list">
+      <ul class="note-list">
 {items}
       </ul>
     </article>
