@@ -200,6 +200,16 @@ p {
   color: var(--color-accent-2);
 }
 
+.link-list time {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.link-list li.empty {
+  color: var(--color-muted);
+}
+
 .project-list li,
 .link-list li {
   margin-bottom: var(--space);
