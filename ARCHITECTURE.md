@@ -45,9 +45,10 @@ Editor UI (browser) ──── mohokoto-worker.parkseohwa.workers.dev ──�
         │                 content-drafts (private)
         │                 canonical source + revision history (git log)
         │
-        │ on publish/unpublish:
-        │  1. render Markdown→HTML, commit to notes-published
-        │  2. GitHub App B: actions:write → trigger sync workflow
+        │ on publish/unpublish/delete:
+        │  1. (publish only) render Markdown→HTML, commit to notes-published
+        │  2. remove/write notes-published as needed, then
+        │     GitHub App B: actions:write → trigger sync workflow
         ▼
 notes-published (public)          mohokoto.github.io (public)
 static HTML artifact         ◄──  sync-notes.yml pulls notes/ from
@@ -145,7 +146,7 @@ three kinds of things from one origin — a deliberate choice
 (mohokoto.github.io#2) to avoid the multi-origin Access/CORS surface a
 separate editor host would add:
 
-- **JSON API** — `GET/POST /notes`, `GET/PUT /notes/:slug`,
+- **JSON API** — `GET/POST /notes`, `GET/PUT/DELETE /notes/:slug`,
   `POST /notes/:slug/publish|unpublish`, `GET /notes/:slug/revisions`.
 - **Editor UI** — `GET /` (Note list) and `GET /edit/:slug` (EasyMDE
   editor), rendered server-side as plain HTML/CSS/JS strings (`src/ui.ts`).
