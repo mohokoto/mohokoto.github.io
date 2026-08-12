@@ -83,11 +83,13 @@ workflow. No other backend, database, or hosting exists.
    the former into the latter, regenerates `notes/index.html`
    (`.github/scripts/generate_notes_index.py`, sorted newest-first
    using each page's `<meta name="date">`), commits and pushes if
-   anything changed. Also runs on a `schedule` (`*/5 * * * *`) as a
-   backup in case the immediate dispatch is ever missed — in practice
-   almost every commit here comes from the dispatch, not the
-   schedule, since the schedule only commits when it finds a real
-   diff.
+   anything changed. Also runs on a `schedule` (`*/5 * * * *`) — not
+   primarily as a recovery path for a failed dispatch push (see
+   [Known gaps](#known-gaps): the one observed race was actually
+   resolved by a later dispatch, not the schedule, which found nothing
+   to sync), but as a backup for the case where a dispatch was never
+   sent at all. In practice almost every commit here comes from a
+   dispatch.
 4. GitHub Pages rebuilds `mohokoto.github.io` from the new commit.
    Typical publish-to-live latency: dispatch is near-instant, Pages
    rebuild adds roughly 30–60s.
@@ -209,3 +211,18 @@ being caught in review and the exposed history rewritten
 - No automated tests anywhere in the Worker or the sync workflow.
   Everything so far has been verified by live smoke-testing against
   the real deployed system, not by a test suite.
+- **`sync-notes.yml` has no retry on a concurrent-dispatch push race.**
+  Reproduced live: two `workflow_dispatch` runs 6s apart
+  (2026-08-12T05:06:06Z, T05:06:12Z), the second's `git push` rejected
+  non-fast-forward (exact error confirmed in the job log). Because the
+  workflow always syncs *full current state* via `rsync --delete`
+  rather than an incremental diff, a lost push is self-healing on the
+  next successful run *of either trigger* — but in this specific
+  incident, that recovery did not come from the schedule tick 10
+  minutes later (its log reads "No changes to sync.", i.e. it found
+  the state already correct); the next real commit came from a later,
+  unrelated dispatch. No confirmed case of content actually staying
+  missing has been observed, and the two racing runs most likely
+  carried identical target content (nothing was published in the 6s
+  between them) — but the failure mode itself is real, unmonitored,
+  and not something the workflow visibly surfaces when it happens.
