@@ -15,7 +15,11 @@ import sys
 from pathlib import Path
 
 NOTES_DIR = Path("notes")
-TITLE_RE = re.compile(r"<title>(.*?)</title>", re.DOTALL)
+# <h1>, not <title> - renderNoteHtml's <title> has a " · mohokoto" suffix
+# for the browser tab, which a naive <title> extraction here would carry
+# straight into the list (observed live: "테스트 2 · mohokoto" as the link
+# text). <h1> is always just the bare escaped title.
+TITLE_RE = re.compile(r"<h1>(.*?)</h1>", re.DOTALL)
 DATE_RE = re.compile(r'<meta\s+name="date"\s+content="([^"]*)"')
 
 
@@ -88,12 +92,12 @@ def render(notes) -> str:
   </header>
 
   <main id="main">
-    <section id="notes" aria-labelledby="notes-heading">
-      <h1 id="notes-heading">Notes</h1>
+    <article>
+      <h1>Notes</h1>
       <ul class="link-list">
 {items}
       </ul>
-    </section>
+    </article>
   </main>
 
   <footer class="site-footer">
