@@ -229,12 +229,34 @@ being caught in review and the exposed history rewritten
 
 ## Known gaps
 
-- Individual published Note pages (`renderNoteHtml` in `src/index.ts`)
-  are an unstyled placeholder — no V0 visual language applied yet,
-  unlike the Notes index page. Tracked in #9.
 - No automated tests anywhere in the Worker or the sync workflow.
   Everything so far has been verified by live smoke-testing against
   the real deployed system, not by a test suite.
+- **The Publish/Un-publish pipeline isn't atomic.** Both are 2–3
+  sequential network calls with no rollback: Publish writes
+  `content-drafts` (status, `publishedAt`/`lastPublishedAt`) *then*
+  renders and writes `notes-published` *then* triggers the sync
+  workflow (`src/index.ts`); Un-publish writes `content-drafts` *then*
+  deletes from `notes-published`. If a later step throws (transient
+  GitHub API error, rate limit) after an earlier one succeeded,
+  `content-drafts` and the live site end up disagreeing about the
+  Note's status — e.g. a failed Un-publish delete leaves the editor
+  saying "draft" while the old page is still publicly live, with
+  nothing to reconcile it automatically. The state transition table
+  above documents the intended end state of each transition, not this
+  partial-failure case — its "To" column assumes all steps landed.
+  Same shape of gap as the `sync-notes.yml` race below, one layer up.
+- **`content-drafts` writes across Save/Publish/Un-publish aren't
+  isolated from each other beyond the Editor's own UI lock.** All
+  three write the same file by `sha` (read-then-write). The Editor
+  serializes them client-side (one `busy` flag disables all three
+  buttons for the duration of any one — added after splitting the old
+  single toggle into independent buttons removed that serialization
+  for free, mohokoto.github.io#9), but nothing enforces this
+  server-side: two browser tabs, or a direct API call racing the
+  Editor, can still send overlapping writes. GitHub rejects whichever
+  lands second against a stale `sha`, surfaced only as a generic
+  failure alert — not a data-loss risk, but not a handled case either.
 - **`sync-notes.yml` has no retry on a concurrent-dispatch push race.**
   Reproduced live: two `workflow_dispatch` runs 6s apart
   (2026-08-12T05:06:06Z started first, T05:06:12Z started second). The
