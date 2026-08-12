@@ -98,11 +98,14 @@ workflow. No other backend, database, or hosting exists.
 
 `status` is a free string with exactly two values in practice, `draft`
 and `published` (mohokoto.github.io#3 — deliberately not an enum).
-Save, Publish, and Un-publish are three independent actions, not a
-single toggle (mohokoto.github.io#9) — Publish always means "make the
-current draft content the live version," regardless of what `status`
-already was, which is why "published + Publish" (republish) is its own
-row below, not a no-op:
+Save, Publish, Un-publish, and Delete are four independent actions, not
+variations of one toggle (mohokoto.github.io#9, #11) — Publish always
+means "make the current draft content the live version," regardless of
+what `status` already was, which is why "published + Publish"
+(republish) is its own row below, not a no-op. Delete is the odd one
+out structurally: every other action's "To" is still `draft` or
+`published` (the Note keeps existing), but Delete has no "To" at all —
+it's the only transition that exits the state space entirely.
 
 | From | Action (endpoint) | To | `content-drafts` | `notes-published` | Sync triggered |
 |---|---|---|---|---|---|
@@ -112,14 +115,27 @@ row below, not a no-op:
 | published | Publish (`POST /notes/:slug/publish`), i.e. republish | published | commit, `lastPublishedAt` ← now (`publishedAt` untouched) | overwritten from current draft body | yes |
 | published | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit, `status` → draft | deleted | yes |
 | draft | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit written unconditionally even though nothing changes — unlike Save, this handler has no no-op guard | untouched (delete is skipped: lookup for a file that was never there returns nothing to delete) | no |
+| draft | Delete (`DELETE /notes/:slug`) | *(gone)* | file deleted | untouched (nothing published) | no |
+| published | Delete (`DELETE /notes/:slug`) | *(gone)* | file deleted | deleted | yes |
 
-The last row isn't reachable from the Editor UI (the Un-publish control
-is hidden whenever `status` is already `draft`) but is real behavior of
-the API itself — calling it directly still writes a redundant commit.
-Not treated as a bug worth guarding against: the same class of
-no-op-but-harmless commit that PUT's own guard exists to avoid for
-Save, just far less likely to happen here since nothing routes to it
-under normal use.
+The "draft + Un-publish" row isn't reachable from the Editor UI (the
+Un-publish control is hidden whenever `status` is already `draft`) but
+is real behavior of the API itself — calling it directly still writes a
+redundant commit. Not treated as a bug worth guarding against: the same
+class of no-op-but-harmless commit that PUT's own guard exists to avoid
+for Save, just far less likely to happen here since nothing routes to
+it under normal use.
+
+Deleting doesn't purge `content-drafts`' git history for that path —
+past commits stay in `git log` even though the file (and, per the "To"
+column, the Note itself) is gone. Deliberate, not an oversight: V1.5
+treats `git log` as *the* revision history, so a routine, one-click
+Delete action rewriting it would work against that rather than with it.
+Un-publish/Delete's asymmetry with the Editor UI is intentional too:
+unlike Publish/Un-publish, Delete doesn't require Un-publish first —
+deleting a published Note both takes it down and removes the draft in
+one deliberate act, since (unlike Publish vs. Un-publish) there's no
+second, different intent it could be conflated with.
 
 ## Cloudflare Worker (`mohokoto-worker`)
 
@@ -246,16 +262,17 @@ being caught in review and the exposed history rewritten
   above documents the intended end state of each transition, not this
   partial-failure case — its "To" column assumes all steps landed.
   Same shape of gap as the `sync-notes.yml` race below, one layer up.
-- **`content-drafts` writes across Save/Publish/Un-publish aren't
+- **`content-drafts` writes across Save/Publish/Un-publish/Delete aren't
   isolated from each other beyond the Editor's own UI lock.** All
-  three write the same file by `sha` (read-then-write). The Editor
-  serializes them client-side (one `busy` flag disables all three
-  buttons for the duration of any one — added after splitting the old
-  single toggle into independent buttons removed that serialization
-  for free, mohokoto.github.io#9), but nothing enforces this
-  server-side: two browser tabs, or a direct API call racing the
-  Editor, can still send overlapping writes. GitHub rejects whichever
-  lands second against a stale `sha`, surfaced only as a generic
+  four act on the same file by `sha` (read-then-write, or read-then-
+  delete). The Editor serializes them client-side (one `busy` flag
+  disables all four buttons for the duration of any one — added after
+  splitting the old single Publish/Un-publish toggle into independent
+  buttons removed that serialization for free, mohokoto.github.io#9,
+  #11), but nothing enforces this server-side: two browser tabs, or a
+  direct API call racing the Editor, can still send overlapping writes.
+  GitHub rejects whichever lands second against a stale `sha`, surfaced
+  only as a generic
   failure alert — not a data-loss risk, but not a handled case either.
 - **`sync-notes.yml` has no retry on a concurrent-dispatch push race.**
   Reproduced live: two `workflow_dispatch` runs 6s apart
