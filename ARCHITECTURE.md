@@ -231,3 +231,16 @@ being caught in review and the exposed history rewritten
   narrower than "content gets lost": a push can fail silently, with
   no retry and no alert, and nothing in this repo would surface that
   it happened.
+
+  **Second occurrence, different racer**: reproduced again on
+  2026-08-12T10:35Z, this time not two dispatches racing each other but
+  a dispatch racing a *manual* `git push` (active development on this
+  repo's own files - styles.css, the sync script - happening
+  concurrently with live publish/unpublish testing that triggers the
+  same workflow). Rejected non-fast-forward, same as before; unlike the
+  first incident, this one *did* leave the live site stale (a Note's
+  updated byline didn't appear) until manually re-triggered, since
+  nothing else re-synced state on its own before that. Confirms the
+  race isn't limited to dispatch-vs-dispatch - anything that pushes to
+  this repo's main is a participant, including a human editing docs
+  here at the same time someone's using the Editor.
