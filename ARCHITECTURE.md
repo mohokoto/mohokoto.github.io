@@ -106,8 +106,8 @@ row below, not a no-op:
 
 | From | Action (endpoint) | To | `content-drafts` | `notes-published` | Sync triggered |
 |---|---|---|---|---|---|
-| draft | Save (`PUT /notes/:slug`) | draft | commit, `updated` ← now — skipped entirely if title/body unchanged | untouched | no |
-| published | Save (`PUT /notes/:slug`) | published | commit, `updated` ← now — skipped entirely if title/body unchanged | untouched — now diverges from the draft until republished | no |
+| draft | Save (`PUT /notes/:slug`) | draft | commit, `savedAt` ← now — skipped entirely if title/body unchanged | untouched | no |
+| published | Save (`PUT /notes/:slug`) | published | commit, `savedAt` ← now — skipped entirely if title/body unchanged | untouched — now diverges from the draft until republished | no |
 | draft | Publish (`POST /notes/:slug/publish`) | published | commit, `status` → published, `publishedAt` ← now (first time only), `lastPublishedAt` ← now | created from current draft body | yes |
 | published | Publish (`POST /notes/:slug/publish`), i.e. republish | published | commit, `lastPublishedAt` ← now (`publishedAt` untouched) | overwritten from current draft body | yes |
 | published | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit, `status` → draft | deleted | yes |
