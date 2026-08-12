@@ -149,7 +149,9 @@ product.md        (why — long-term philosophy, this document)
     ↓
 invariants.md      (what must always hold, regardless of implementation)
     ↓
-SPEC.md            (what the current, initial implementation is)
+SPEC.md            (what must be built — required behavior, technology-agnostic)
+    ↓
+ARCHITECTURE.md    (what's actually built, right now — normative, not a plan)
     ↓
 implementation
 ```

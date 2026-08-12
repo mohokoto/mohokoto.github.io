@@ -164,7 +164,8 @@ exists alongside Draft/Published) is an implementation-design decision
 - Specific technology (which backend/BaaS, auth provider, database,
   hosting alongside GitHub Pages) is not decided here — deferred to
   implementation-design discussion, tracked as a GitHub Issue rather
-  than a separate design document.
+  than a separate design document. See `ARCHITECTURE.md` for what was
+  settled on.
 
 ### V1.7 Explicitly not required for V1
 
