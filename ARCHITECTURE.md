@@ -213,16 +213,21 @@ being caught in review and the exposed history rewritten
   the real deployed system, not by a test suite.
 - **`sync-notes.yml` has no retry on a concurrent-dispatch push race.**
   Reproduced live: two `workflow_dispatch` runs 6s apart
-  (2026-08-12T05:06:06Z, T05:06:12Z), the second's `git push` rejected
-  non-fast-forward (exact error confirmed in the job log). Because the
+  (2026-08-12T05:06:06Z started first, T05:06:12Z started second). The
+  first finished its commit+push before the second reached its own
+  push, so the second's `git push` was rejected non-fast-forward (exact
+  error confirmed in the job log) — by the time it failed, the first
+  run had already pushed the same target state (both synced from the
+  same `notes-published` content, 6s apart with nothing published in
+  between). Nothing was actually missing: the next scheduled run
+  10 minutes later logged "No changes to sync." — confirming the state
+  was already correct, not that it healed something. Because the
   workflow always syncs *full current state* via `rsync --delete`
-  rather than an incremental diff, a lost push is self-healing on the
-  next successful run *of either trigger* — but in this specific
-  incident, that recovery did not come from the schedule tick 10
-  minutes later (its log reads "No changes to sync.", i.e. it found
-  the state already correct); the next real commit came from a later,
-  unrelated dispatch. No confirmed case of content actually staying
-  missing has been observed, and the two racing runs most likely
-  carried identical target content (nothing was published in the 6s
-  between them) — but the failure mode itself is real, unmonitored,
-  and not something the workflow visibly surfaces when it happens.
+  rather than an incremental diff, a genuine loss (two dispatches
+  racing over materially *different* content) would self-heal on
+  whatever run — dispatch or schedule — processes state next; this
+  incident just didn't require that, since the failed run was
+  redundant from the moment it lost the race. The real gap is
+  narrower than "content gets lost": a push can fail silently, with
+  no retry and no alert, and nothing in this repo would surface that
+  it happened.
