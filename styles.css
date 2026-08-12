@@ -257,9 +257,8 @@ p {
   color: var(--color-accent);
 }
 
-.note-list time {
-  display: block;
-  margin-top: 0.25rem;
+.note-list .byline {
+  margin: 0.25rem 0 0;
   font-size: 0.85rem;
   color: var(--color-muted);
 }
@@ -286,8 +285,7 @@ article h1 {
   font-size: clamp(1.75rem, 5vw, 2.5rem);
 }
 
-article > time {
-  display: block;
+.byline {
   color: var(--color-muted);
   font-size: 0.9rem;
   margin-bottom: var(--space);

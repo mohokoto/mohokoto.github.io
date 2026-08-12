@@ -2,10 +2,12 @@
 """Regenerate notes/index.html by scanning notes/*/index.html.
 
 Run from the repo root, after notes/ has been rsynced from
-notes-published (sync-notes.yml). Sorts newest-first using each note's
-<meta name="date"> (added by the Worker at publish time,
-mohokoto.github.io#8); notes published before that existed fall back to
-the synced file's git commit date.
+notes-published (sync-notes.yml). Sorts newest-first-published using
+each note's <meta name="date"> - first-publish time, stable across
+republishes (mohokoto.github.io#9); notes published before that field
+existed fall back to the synced file's git commit date. <meta
+name="updated"> (most recent republish) is shown alongside it in the
+list when the two differ.
 """
 
 import html
@@ -22,6 +24,7 @@ NOTES_DIR = Path("notes")
 # text). <h1> is always just the bare escaped title.
 TITLE_RE = re.compile(r"<h1>(.*?)</h1>", re.DOTALL)
 DATE_RE = re.compile(r'<meta\s+name="date"\s+content="([^"]*)"')
+UPDATED_RE = re.compile(r'<meta\s+name="updated"\s+content="([^"]*)"')
 
 
 def format_date(date_str: str) -> str:
@@ -61,15 +64,25 @@ def collect_notes():
         title = html.unescape(title_match.group(1)).strip() if title_match else entry.name
         date_match = DATE_RE.search(text)
         date = date_match.group(1) if date_match else git_commit_date(note_file)
-        notes.append({"slug": entry.name, "title": title, "date": date})
+        updated_match = UPDATED_RE.search(text)
+        updated = updated_match.group(1) if updated_match else date
+        notes.append({"slug": entry.name, "title": title, "date": date, "updated": updated})
     notes.sort(key=lambda n: n["date"], reverse=True)
     return notes
+
+
+def render_byline(note) -> str:
+    published = f'<time datetime="{html.escape(note["date"])}">{html.escape(format_date(note["date"]))}</time>'
+    if note["updated"] == note["date"]:
+        return published
+    updated = f'<time datetime="{html.escape(note["updated"])}">{html.escape(format_date(note["updated"]))}</time>'
+    return f"{published} &middot; Updated {updated}"
 
 
 def render(notes) -> str:
     items = "\n".join(
         f'        <li><a href="/notes/{html.escape(n["slug"])}/">{html.escape(n["title"])}</a>'
-        f'<time datetime="{html.escape(n["date"])}">{html.escape(format_date(n["date"]))}</time></li>'
+        f'<p class="byline">{render_byline(n)}</p></li>'
         for n in notes
     )
     if not notes:
