@@ -220,6 +220,70 @@ p {
   margin-bottom: 0;
 }
 
+/* Individual Note pages (rendered by the Worker, renderNoteHtml -
+   mohokoto.github.io#9): reuse this stylesheet directly rather than
+   duplicating it there, since these pages are same-origin (synced into
+   this repo's notes/ tree). h1/p below are sized for the homepage hero
+   section by design - scope article's own heading/body back down instead
+   of changing those shared rules. */
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--space);
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  color: var(--color-accent);
+}
+
+article h1 {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+}
+
+article > time {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  margin-bottom: var(--space);
+}
+
+article p {
+  color: var(--color-text);
+}
+
+article blockquote {
+  margin: 0 0 0.75rem;
+  padding-left: var(--space);
+  border-left: 2px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+article pre,
+article code {
+  font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+}
+
+article pre {
+  padding: var(--space);
+  overflow-x: auto;
+  background: rgba(43, 36, 32, 0.05);
+  border-radius: 4px;
+}
+
+article code {
+  padding: 0.1rem 0.35rem;
+  background: rgba(43, 36, 32, 0.05);
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+article pre code {
+  padding: 0;
+  background: none;
+}
+
 .site-footer {
   max-width: var(--max-width);
   margin: 0 auto;
