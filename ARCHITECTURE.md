@@ -94,8 +94,32 @@ workflow. No other backend, database, or hosting exists.
    Typical publish-to-live latency: dispatch is near-instant, Pages
    rebuild adds roughly 30–60s.
 
-Un-publish is the same path in reverse: delete from `notes-published`,
-same App B trigger, same sync.
+### Note status: state transitions
+
+`status` is a free string with exactly two values in practice, `draft`
+and `published` (mohokoto.github.io#3 — deliberately not an enum).
+Save, Publish, and Un-publish are three independent actions, not a
+single toggle (mohokoto.github.io#9) — Publish always means "make the
+current draft content the live version," regardless of what `status`
+already was, which is why "published + Publish" (republish) is its own
+row below, not a no-op:
+
+| From | Action (endpoint) | To | `content-drafts` | `notes-published` | Sync triggered |
+|---|---|---|---|---|---|
+| draft | Save (`PUT /notes/:slug`) | draft | commit, `updated` ← now — skipped entirely if title/body unchanged | untouched | no |
+| published | Save (`PUT /notes/:slug`) | published | commit, `updated` ← now — skipped entirely if title/body unchanged | untouched — now diverges from the draft until republished | no |
+| draft | Publish (`POST /notes/:slug/publish`) | published | commit, `status` → published, `publishedAt` ← now (first time only), `lastPublishedAt` ← now | created from current draft body | yes |
+| published | Publish (`POST /notes/:slug/publish`), i.e. republish | published | commit, `lastPublishedAt` ← now (`publishedAt` untouched) | overwritten from current draft body | yes |
+| published | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit, `status` → draft | deleted | yes |
+| draft | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit written unconditionally even though nothing changes — unlike Save, this handler has no no-op guard | untouched (delete is skipped: lookup for a file that was never there returns nothing to delete) | no |
+
+The last row isn't reachable from the Editor UI (the Un-publish control
+is hidden whenever `status` is already `draft`) but is real behavior of
+the API itself — calling it directly still writes a redundant commit.
+Not treated as a bug worth guarding against: the same class of
+no-op-but-harmless commit that PUT's own guard exists to avoid for
+Save, just far less likely to happen here since nothing routes to it
+under normal use.
 
 ## Cloudflare Worker (`mohokoto-worker`)
 
