@@ -248,20 +248,27 @@ being caught in review and the exposed history rewritten
 - No automated tests anywhere in the Worker or the sync workflow.
   Everything so far has been verified by live smoke-testing against
   the real deployed system, not by a test suite.
-- **The Publish/Un-publish pipeline isn't atomic.** Both are 2–3
-  sequential network calls with no rollback: Publish writes
+- **The Publish/Un-publish/Delete pipelines aren't atomic.** All three
+  are 2–3 sequential network calls with no rollback: Publish writes
   `content-drafts` (status, `publishedAt`/`lastPublishedAt`) *then*
   renders and writes `notes-published` *then* triggers the sync
-  workflow (`src/index.ts`); Un-publish writes `content-drafts` *then*
-  deletes from `notes-published`. If a later step throws (transient
-  GitHub API error, rate limit) after an earlier one succeeded,
-  `content-drafts` and the live site end up disagreeing about the
-  Note's status — e.g. a failed Un-publish delete leaves the editor
+  workflow (`src/index.ts`); Un-publish and Delete both write/delete
+  `content-drafts` *then* delete from `notes-published`. If a later
+  step throws (transient GitHub API error, rate limit) after an
+  earlier one succeeded, `content-drafts` and the live site end up
+  disagreeing — e.g. a failed Un-publish delete leaves the editor
   saying "draft" while the old page is still publicly live, with
   nothing to reconcile it automatically. The state transition table
   above documents the intended end state of each transition, not this
   partial-failure case — its "To" column assumes all steps landed.
   Same shape of gap as the `sync-notes.yml` race below, one layer up.
+  **Delete is the worst case of the three**: if its `content-drafts`
+  delete succeeds but the `notes-published` delete then fails, the
+  Note is gone from the Editor entirely (`GET /notes/:slug` now 404s)
+  with no way to retry through the app at all, while the old page
+  stays live indefinitely - unlike Publish/Un-publish, where the Note
+  still exists in `content-drafts` and the mismatch is at least
+  visible and re-triggerable from the Editor.
 - **`content-drafts` writes across Save/Publish/Un-publish/Delete aren't
   isolated from each other beyond the Editor's own UI lock.** All
   four act on the same file by `sha` (read-then-write, or read-then-
