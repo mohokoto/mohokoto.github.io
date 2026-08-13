@@ -72,7 +72,14 @@ Two boundary clarifications on "personal value":
 - **A changed judgment does not silently overwrite the earlier one.**
   When the user's thinking changes, "I used to think X, now I think Y"
   is itself knowledge worth preserving, not noise to be discarded in
-  favor of the current view.
+  favor of the current view. This constrains *silent or automatic*
+  overwriting and cleanup — the system or an AI feature replacing a
+  past state with a current one, or discarding it, without the user
+  having made that specific call. It does not constrain the user's own
+  explicit, confirmed decision to delete or change their own content:
+  a human deliberately choosing that something is no longer worth
+  keeping is the exercise of the authority this document elsewhere
+  reserves to the user, not a violation of it (mohokoto.github.io#12).
 
 ## Taxonomy
 
@@ -151,11 +158,13 @@ the same way.
 relationships, and Change over time** govern any knowledge the system
 stores, including what is already built. The current V1 Note/CMS
 structure is in scope for these starting now, not only once some
-future phase ships — mohokoto.github.io#12 is the active review of
-exactly how the present implementation holds up against them (an
-already-shipped example under review there: whether Delete's silent,
-unrecoverable-from-the-app removal of a Note works against Change over
-time).
+future phase ships — mohokoto.github.io#12 is the review of exactly how
+the present implementation holds up against them (already resolved
+there: Delete's user-initiated, confirmed removal of a Note does not
+work against Change over time, per that invariant's explicit/silent
+distinction above — but Delete's interaction with Context and
+relationships is unresolved, deferred until lineage between knowledge
+objects is actually built).
 
 **Taxonomy, and the taxonomy-specific bullet of AI and human
 authority,** are different: they describe the system `product.md` is
