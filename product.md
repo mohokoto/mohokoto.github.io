@@ -39,8 +39,14 @@ others; see "Open categories" below.
   of the inquiry, which may freely draw on AI output, external sources,
   and their own writing. What makes it theirs is that the inquiry and
   the meaning-making are theirs, not the proportion of sentences they
-  typed. A Q/A also holds its relations to other Q/As, covering both
-  how inquiry moved over time (one question giving rise to another,
+  typed. Neither field is required to be fully formed to exist: a
+  standing interest that hasn't yet crystallized into a real question is
+  itself a Q/A, just an early one — a bare label is enough to create
+  one, so that something can be referenced the moment it's recalled,
+  rather than needing to be worked into a proper question first
+  (mohokoto.github.io#12). A Q/A also holds its relations to other
+  Q/As, covering both how inquiry moved over time (one question giving
+  rise to another,
   questions splitting or merging) and static connections between
   questions (mohokoto.github.io#12).
 - **Notes** — the atomic unit of written content: what the user actually
