@@ -56,6 +56,18 @@ distinct: a Project is a bounded thing being built; a Note is a piece of
 writing organized by an evolving topic structure, not necessarily tied
 to any project.
 
+**On the name "Note".** Conceptually this category is a composed,
+publishable document — "Article" or "Document" would describe it more
+precisely, and the mohokoto.github.io#12 discussion that introduced Q/A
+called it "Article" throughout. The name "Note" is kept because it is
+load-bearing in the implementation well beyond identifiers: published
+URLs (`/notes/{slug}/`, which `SPEC.md` V1.4 requires to be stable),
+storage layout in two repositories, the `notes-published` repository
+name, and the sync workflow. What matters conceptually is the
+distinction this section draws, not the label: a Note is something the
+user composed and may publish, as against a Q/A, which is where inquiry
+itself lives.
+
 A Note may draw on one or more Q/As, and one Q/A may feed several Notes
 — but a Note is not a view onto them. It has its own content, its own
 composition, and its own editing, and it takes a snapshot of the Q/As
