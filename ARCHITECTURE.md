@@ -65,7 +65,7 @@ workflow. No other backend, database, or hosting exists.
 |---|---|---|
 | `mohokoto.github.io` | public | The live site (GitHub Pages). V0 static pages (`index.html`, `styles.css`) plus the synced `notes/` tree. |
 | `notes-published` | public | Intermediate artifact: rendered static HTML for currently-published Notes only. Not meant to be browsed directly. |
-| `content-drafts` | private | Canonical source for every Note, published or not. Its git log *is* the revision history (SPEC.md V1.5) — nothing else stores revisions. |
+| `content-drafts` | private | Canonical source for every Note (published or not) and every Q/A (mohokoto.github.io#12, #13 — has no publish state of its own). Its git log *is* the revision history (SPEC.md V1.5) — nothing else stores revisions. |
 | `worker` | private | Cloudflare Worker source. The only backend/API in the system, and also serves the Editor UI (see below). |
 
 ## Data flow: Draft → Publish → Live
@@ -138,6 +138,25 @@ deleting a published Note both takes it down and removes the draft in
 one deliberate act, since (unlike Publish vs. Un-publish) there's no
 second, different intent it could be conflated with.
 
+### Q/A: state transitions
+
+Q/A (mohokoto.github.io#12, #13) has no `status` field and no publish
+state at all — its state space is just whether it exists, so this table
+is shorter than Note's:
+
+| From | Action (endpoint) | To | `content-drafts` |
+|---|---|---|---|
+| (none) | Create (`POST /qa`) | exists | file created. `question` required (≥1 char after trim, same shape as Note's title validation) — `answer` is not; a bare label is enough to exist (mohokoto.github.io#12) |
+| exists | Save (`PUT /qa/:id`) | exists | commit only if `question`/`answer`/`relations` actually changed (same no-op guard as Note's PUT). A blank `question` in the request falls back to the existing value rather than being written — `??` alone isn't enough here, since it only guards a *missing* field, not an empty one |
+| exists | Delete (`DELETE /qa/:id`) | *(gone)* | file deleted. Other Q/A's `relations` arrays that reference this id are not touched — the reference becomes dangling, rendered as unresolved in the Editor rather than erroring, which is what keeps "there was a connection and why" (the `note` text) even once its target is gone |
+
+Adding or removing a relation isn't a separate action — it's a change
+to the `relations` field, saved through the same PUT as everything
+else. The list page derives whether a Q/A is "unanswered" from `answer`
+being empty on every request rather than storing that as its own field,
+for the same reason Note doesn't store a redundant flag anywhere it can
+compute one instead.
+
 ## Cloudflare Worker (`mohokoto-worker`)
 
 Single Hono app, one deployment target
@@ -147,12 +166,17 @@ three kinds of things from one origin — a deliberate choice
 separate editor host would add:
 
 - **JSON API** — `GET/POST /notes`, `GET/PUT/DELETE /notes/:slug`,
-  `POST /notes/:slug/publish|unpublish`, `GET /notes/:slug/revisions`.
+  `POST /notes/:slug/publish|unpublish`, `GET /notes/:slug/revisions`;
+  `GET/POST /qa`, `GET/PUT/DELETE /qa/:id`, `GET /qa/:id/revisions`
+  (mohokoto.github.io#13).
 - **Editor UI** — `GET /` (Note list) and `GET /edit/:slug` (EasyMDE
-  editor), rendered server-side as plain HTML/CSS/JS strings (`src/ui.ts`).
-  No build step, no framework — templates are TypeScript template
-  literals. EasyMDE and its dependency (Font Awesome, loaded by EasyMDE
-  itself) come from jsDelivr at runtime, not bundled.
+  editor) for Notes; `GET /q` and `GET /q/edit/:id` for Q/A, reachable
+  only by direct URL for now, no cross-link between the two UIs
+  (mohokoto.github.io#13 — Note↔Q/A connection is separate, unbuilt
+  work). Both rendered server-side as plain HTML/CSS/JS strings
+  (`src/ui.ts`). No build step, no framework — templates are TypeScript
+  template literals. EasyMDE and its dependency (Font Awesome, loaded by
+  EasyMDE itself) come from jsDelivr at runtime, not bundled.
 - **Static assets** — `manifest.json` and PWA icons, served via
   Workers static assets (`[assets]` in `wrangler.toml`, files in
   `public/`) rather than a Hono route. First and only binary content
