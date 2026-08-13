@@ -47,6 +47,13 @@ Two boundary clarifications on "personal value":
 - This does not mean "anything connected to the person" qualifies. The
   test is still uniqueness of preservation value, not personal
   relevance in general.
+- The judgment applies to the information a knowledge object holds,
+  not necessarily to the whole object as one indivisible unit. A
+  single Note can mix material that satisfies this test with material
+  that doesn't — a generic fact used as a lead-in to a genuinely
+  personal reflection, say. What has to hold is that the object's
+  reason for being preserved rests on the part that qualifies, not
+  that every sentence in it does (mohokoto.github.io#12).
 
 ## Originality and provenance
 
