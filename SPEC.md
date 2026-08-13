@@ -1,15 +1,16 @@
 # Personal Website Specification
 
-> This document specifies mohokoto's site requirements in two phases.
+> This document specifies mohokoto's site requirements in three parts.
 > Sections 1–8 below (**V0**) describe the current, initial
 > implementation — a static personal homepage — which is implemented
-> and live. **Part 2: V1 — Content System**, at the end of this
-> document, adds requirements for writing, editing, and publishing
-> content directly on the site; V1 is now implemented and live as well
-> — see [`ARCHITECTURE.md`](ARCHITECTURE.md) for what was actually
-> built to satisfy it. Neither phase describes the full long-term
-> product direction — see [`product.md`](product.md) for the product
-> philosophy this site is the first environment for, and
+> and live. **Part 2: V1 — Content System** adds requirements for
+> writing, editing, and publishing content directly on the site.
+> **Part 3: Q/A — Personal Inquiry** adds requirements for recording
+> personal inquiry independent of publishing. All three are implemented
+> and live — see [`ARCHITECTURE.md`](ARCHITECTURE.md) for what was
+> actually built to satisfy them. None of the three describes the full
+> long-term product direction — see [`product.md`](product.md) for the
+> product philosophy this site is the first environment for, and
 > [`invariants.md`](invariants.md) for constraints that must hold
 > regardless of implementation.
 
@@ -174,3 +175,60 @@ exists alongside Draft/Published) is an implementation-design decision
 - AI-assisted authoring features (`product.md`'s AI philosophy)
 - Multi-author support
 - Comments, reactions, or any visitor interaction with published content
+
+---
+
+## Part 3: Q/A — Personal Inquiry
+
+> Q/A is a category in `product.md`'s Core model, motivated by
+> `invariants.md`'s Preservation value principle: personal inquiry — a
+> question genuinely being pursued, and the answer arrived at — has
+> standing to be preserved on its own, independent of whether it is
+> ever composed into a Note or published. It emerged from
+> implementation-design discussion (mohokoto.github.io#12) rather than
+> being specified in advance here; this section documents it after the
+> fact so the requirement and what was built to satisfy it
+> (`ARCHITECTURE.md`) stay in sync. As with Part 2, requirements only —
+> data storage format, API design, and specific technology choices are
+> implementation-design decisions, tracked as GitHub Issues.
+
+### V3.1 Purpose
+
+Enable mohokoto to record personal inquiry (a question and its current
+answer) directly, independent of whether it is ever composed into a
+Note, and to preserve relationships between related pieces of inquiry
+over time.
+
+### V3.2 Scope
+
+- Same single-author, same-authentication constraint as V1.2.
+- A Q/A has no publication or visibility state of its own — it is never
+  directly visible to a visitor. Only content a Note deliberately
+  composes from it, and that Note publishes (per Part 2), becomes
+  public.
+- How a Note draws on Q/A (referencing, snapshotting) is out of scope
+  for this requirement set — tracked as future work.
+
+### V3.3 Content model requirements
+
+- A Q/A has at minimum a question and an answer, and its relationships
+  to other Q/A's.
+- Neither the question nor the answer is required to be complete for a
+  Q/A to exist — a bare label is sufficient, so that a recalled
+  interest can be captured the moment it comes to mind rather than
+  requiring it be worked into a proper question first.
+- A Q/A's relationships to other Q/A's must be preservable, covering
+  both how one piece of inquiry gave rise to another and connections
+  that aren't about how something arose.
+
+### V3.4 Revision
+
+Same principle as V1.5: content the author explicitly saves is retained
+as a distinct revision.
+
+### V3.5 Deletion
+
+A Q/A must be deletable outright, as an explicit, author-initiated
+action. Deleting a Q/A referenced by another Q/A's relationships must
+not corrupt or block that reference — the surviving Q/A keeps its own
+record of the relationship even once its target is gone.

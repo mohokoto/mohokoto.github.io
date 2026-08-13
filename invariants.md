@@ -166,15 +166,19 @@ the same way.
 
 **Preservation value, Originality and provenance, Context and
 relationships, and Change over time** govern any knowledge the system
-stores, including what is already built. The current V1 Note/CMS
-structure is in scope for these starting now, not only once some
+stores, including what is already built. The current Note/CMS and Q/A
+structures are in scope for these starting now, not only once some
 future phase ships — mohokoto.github.io#12 is the review of exactly how
-the present implementation holds up against them (already resolved
-there: Delete's user-initiated, confirmed removal of a Note does not
-work against Change over time, per that invariant's explicit/silent
-distinction above — but Delete's interaction with Context and
-relationships is unresolved, deferred until lineage between knowledge
-objects is actually built).
+the present implementation holds up against them. Resolved there:
+Delete's user-initiated, confirmed removal of a Note does not work
+against Change over time, per that invariant's explicit/silent
+distinction above. Delete's interaction with Context and relationships,
+open at the time #12 was written (lineage between knowledge objects
+hadn't been built yet), is resolved too now that Q/A exists
+(mohokoto.github.io#13): deleting a Q/A referenced by another Q/A's
+`relations` leaves that reference dangling rather than corrupting it,
+and specifically keeps the relationship's own `note` text — the fact
+that a connection existed, and why — even once its target is gone.
 
 **Taxonomy, and the taxonomy-specific bullet of AI and human
 authority,** are different: they describe the system `product.md` is
