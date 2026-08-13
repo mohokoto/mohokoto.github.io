@@ -57,12 +57,15 @@ Two boundary clarifications on "personal value":
 
 ## Originality and provenance
 
-- **What the individual actually experienced or thought must remain
-  distinguishable from what an LLM generated or inferred.** An LLM's
-  interpretation must not overwrite the individual's own memory or
-  judgment — refining, summarizing, or reorganizing content must not
-  destroy the ability to tell which parts were authored by the person
-  versus produced by the LLM.
+- **The individual remains the author of their own inquiry and
+  judgment.** A record may freely mix the individual's own writing with
+  AI output and external material; that mixture is normal, and the test
+  is not what proportion of the sentences the individual typed. What
+  must hold is that the inquiry and the meaning-making are theirs: an
+  AI's interpretation must not displace the individual's own memory or
+  judgment, and refining, summarizing, or reorganizing content must not
+  quietly substitute the AI's account of what mattered for the
+  individual's own (mohokoto.github.io#12).
 
 ## Context and relationships
 

@@ -28,11 +28,21 @@ exists.
 ## Core model
 
 The system distinguishes different kinds of things a user works with.
-Only two are defined now — the model is deliberately not closed to
+Three are defined now — the model is deliberately not closed to
 others; see "Open categories" below.
 
 - **Projects** — things being built. A Project has its own lifecycle
   (started, in progress, shipped or archived), independent of any Topic.
+- **Q/A** — the unit of personal inquiry: a question the user is
+  actually pursuing, together with the current answer they have arrived
+  at. The answer is not an AI's response — it is the user's own record
+  of the inquiry, which may freely draw on AI output, external sources,
+  and their own writing. What makes it theirs is that the inquiry and
+  the meaning-making are theirs, not the proportion of sentences they
+  typed. A Q/A also holds its relations to other Q/As, covering both
+  how inquiry moved over time (one question giving rise to another,
+  questions splitting or merging) and static connections between
+  questions (mohokoto.github.io#12).
 - **Notes** — the atomic unit of written content: what the user actually
   writes, across whatever range of subjects. Notes are organized by
   Topics, and Topics are structured by an evolving Taxonomy (see
@@ -46,12 +56,24 @@ distinct: a Project is a bounded thing being built; a Note is a piece of
 writing organized by an evolving topic structure, not necessarily tied
 to any project.
 
+A Note may draw on one or more Q/As, and one Q/A may feed several Notes
+— but a Note is not a view onto them. It has its own content, its own
+composition, and its own editing, and it takes a snapshot of the Q/As
+it drew on at the time it was written or published: a later change to a
+Q/A does not propagate into it, and is pulled in only when the user
+decides it should be. Editing a Note likewise never edits a Q/A
+(a Note's editor offers a path over to the Q/A, but no automatic
+write-back). Q/A is where inquiry lives; a Note is something the user
+chose to compose from it. Inquiry that never becomes a Note is not
+lesser for it — much of it never will be, and it is preserved on its
+own terms.
+
 ### Open categories
 
-Projects and Notes are the only categories this document requires.
-Whether other peer categories exist — and what they would be called — is
-explicitly undecided. This list is not exhaustive and should not be
-treated as a closed set the product is forced into.
+Projects, Q/A, and Notes are the only categories this document
+requires. Whether other peer categories exist — and what they would be
+called — is explicitly undecided. This list is not exhaustive and
+should not be treated as a closed set the product is forced into.
 
 ## AI philosophy
 
