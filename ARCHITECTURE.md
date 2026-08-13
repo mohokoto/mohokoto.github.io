@@ -246,6 +246,18 @@ being caught in review and the exposed history rewritten
 
 ## Known gaps
 
+- **Delete's compliance with `invariants.md`'s Change over time is
+  conditional, not structural.** That invariant excludes a user's own
+  explicit, confirmed deletion from what it constrains (see
+  `invariants.md` and mohokoto.github.io#12) — but nothing in
+  `DELETE /notes/:slug` itself enforces "human-initiated and confirmed
+  per Note." The endpoint just deletes whatever slug it's given; the
+  Editor UI's `confirm()` dialog is the only thing currently making
+  that true. If a future feature reuses this endpoint for bulk or
+  automated deletion (a cleanup script, an AI-driven suggestion acted
+  on without per-Note confirmation), that safety property would no
+  longer hold and this would need re-review against the invariant, not
+  be assumed to still comply.
 - No automated tests anywhere in the Worker or the sync workflow.
   Everything so far has been verified by live smoke-testing against
   the real deployed system, not by a test suite.
