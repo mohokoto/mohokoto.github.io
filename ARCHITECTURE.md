@@ -191,11 +191,16 @@ snapshot, so two tabs editing different Q/A's without reloading could
 each pass it and still both save a relation to each other. `PUT
 /qa/:id` now checks every newly-added relation's target against the
 target's *current* stored `relations` and rejects with 409 if the
-target already relates back — this is the only check that actually
-holds regardless of how the request was made or how stale the client's
-view was. Only new relations are checked; a pair already in both
-states from before this check existed is left alone until someone
-removes one side by hand.
+target already relates back — this closes the stale-client-cache gap
+specifically, since the check is re-run fresh on every save regardless
+of what the Editor had loaded. It does not close every race: two PUT
+requests for A and B that are genuinely concurrent (A's check reads B
+before B's write lands, and B's check reads A before A's write lands)
+could each still pass and both write, recreating a duplicate. Not worth
+closing for a single-user personal-scale tool, but worth stating
+precisely rather than implying the check is airtight. Only new
+relations are checked; a pair already in both states from before this
+check existed is left alone until someone removes one side by hand.
 
 Deleting the source side of a relation is asymmetric between the two
 lists, and this is inherent to one-sided storage, not a gap to fix:
