@@ -171,13 +171,20 @@ navigation on either list yet (out of scope for #16, deferred to a
 future Q graph UX design issue, along with outgoing's own lack of
 navigation, mohokoto.github.io#15).
 
-If two Q/A's each independently add a relation to the other (Q1→Q2 and
-Q2→Q1 both stored), the target shows up in both the outgoing and the
-incoming list on either one's edit page — deliberately not deduplicated
-or merged. The two entries are independently authored (the `note` text
-on each side can differ) and collapsing them would silently drop
-whichever side's note isn't kept, so this is same-target-shown-twice by
-design, not a bug (#16 review decision).
+A relation is one entry per pair, not one per direction — #12's
+"store one-sided, read bidirectional" line means a single relation,
+authored once by whichever side added it, shown on both ends; it does
+not mean each side gets to independently author its own note about the
+other. Even a directional relation (e.g., cause → effect) has two
+readings that are coupled, not two arbitrary free texts, and there's no
+way to derive one direction's phrasing from the other's without
+relation types, which #12 deliberately deferred. So the target-select
+dropdown excludes a Q/A both when this Q/A already relates to it *and*
+when it already relates to this Q/A — the same pair can't end up
+stored twice, once from each side. (An earlier version of this section
+said the opposite — that duplicates were fine and intentionally left
+undeduplicated — which was live-tested and found confusing, then
+corrected after re-reading #12's actual text.)
 
 ## Cloudflare Worker (`mohokoto-worker`)
 
