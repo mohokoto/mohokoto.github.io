@@ -38,6 +38,6 @@ covers.
   proposal, is deliberately left to future implementation-design
   discussion (tracked as a GitHub Issue, not a separate design
   document) — see `product.md`'s "Out of scope".
-- `invariants.md` records the narrower, durable version of this decision:
-  semantic and structural evidence must be kept conceptually distinct,
-  regardless of how each is eventually computed.
+- `product.md`'s Taxonomy section records the narrower, durable version
+  of this decision: semantic and structural evidence must be kept
+  conceptually distinct, regardless of how each is eventually computed.

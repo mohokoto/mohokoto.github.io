@@ -32,7 +32,7 @@ of how confident the underlying signal is.
   interaction cost the automatic-application design would not have.
 - The user's accept/reject/modify response becomes a signal the system
   can use later (for personalization or proposal quality), rather than
-  being discarded — recorded as an invariant in `invariants.md`.
+  being discarded — recorded in `product.md`'s Taxonomy section.
 - This does not preclude a future design where sufficiently trusted
   proposal types require less friction (e.g. lighter-weight confirmation)
   — it precludes the taxonomy becoming authoritative for a change the

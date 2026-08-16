@@ -31,7 +31,7 @@ expected to perform out of band.
   pressure (see [0002](0002-semantic-plus-structural-signal-combination.md)),
   which a static-taxonomy design would not have needed.
 - Evolution must preserve topic identity/lineage across changes (see
-  `invariants.md`), which is more implementation work than treating each
-  reorganization as a fresh start.
+  `product.md`'s Taxonomy section), which is more implementation work
+  than treating each reorganization as a fresh start.
 - This is the product's core differentiator, not an incidental feature —
   see `product.md`'s "Evolving taxonomy" section.

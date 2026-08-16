@@ -1,52 +1,68 @@
-# Architecture
+# Architecture (Global)
 
-## Status
+① Regulates the elements of this system — the technical structure
+currently built (repos, services, routes) and the qualifying criteria
+an object must satisfy to be a valid element of this system in the
+first place.
+② Applies system-wide.
+③ Does not cover relationships between objects (`RELATIONS.md`),
+system behavior or cross-object workflow (`BEHAVIOR.md`), or
+subsystem-internal content models and state transitions
+(`SITE.md`/`NOTES.md`/`Q-A.md`).
 
-This document is a **normative description of the current system** —
-what exists and how it's wired together, as of now. It is not a
-design proposal, a future plan, or a record of how decisions were
-reached (that's what the closed GitHub Issues referenced throughout
-are for). If the running system and this document disagree, that's a
-bug in one of the two to be resolved deliberately, not something this
-document should silently absorb by being regenerated from whatever the
-code happens to do.
+If the running system and this document disagree, that's a bug in one
+of the two to be resolved deliberately. Update this document when the
+actual structure changes.
 
-It sits alongside `SPEC.md` in the doc hierarchy, one level below it:
+## What counts as a valid element
 
-```text
-product.md        (why — long-term philosophy)
-    ↓
-invariants.md      (what must always hold, regardless of implementation)
-    ↓
-SPEC.md            (what must be built — required behavior, technology-agnostic,
-                     per object)
-    ↓
-FLOW.md            (what must be built — required cross-object interaction/
-                     workflow, technology-agnostic; planned, not yet created —
-                     see mohokoto.github.io#17)
-    ↓
-ARCHITECTURE.md    (this document — what's actually built, right now)
-    ↓
-implementation (4 repos, below)
-```
+Every Note and Q/A held by this system must carry personal value
+arising from the individual's own experience, judgment, taste, context,
+or circumstances and activity — not merely value a generic LLM response
+could already supply. Regeneratability alone is not grounds for keeping
+something: general knowledge easily re-obtained by asking an LLM again
+doesn't qualify on its own. This is not limited to reflective content —
+reference information that only carries meaning because of the
+individual's own circumstances (a project's server IP, a contract's
+expiry date) qualifies too. The test is uniqueness of preservation
+value, not personal relevance in general, and it applies to the
+information an object holds, not necessarily the whole object as one
+indivisible unit — a single Note can mix material that satisfies this
+test with material that doesn't, as long as the object's reason for
+being preserved rests on the part that qualifies.
 
-`SPEC.md`'s V1.6 explicitly defers "specific technology... to
-implementation-design discussion, tracked as a GitHub Issue" — this
-document is where those since-settled decisions live once they stopped
-being discussion and became the system. Rationale for *why* a given
-choice was made generally isn't repeated here; each section links the
-issue where it was decided.
+The individual remains the author of their own inquiry and judgment. A
+Note or Q/A may freely mix the individual's own writing with AI output
+and external material — the test is not what proportion of the
+sentences they typed. What must hold is that the inquiry and the
+meaning-making are theirs: an AI's interpretation must not displace the
+individual's own memory or judgment, and refining, summarizing, or
+reorganizing content must not quietly substitute the AI's account of
+what mattered for the individual's own.
 
-Update this document when the actual structure changes. Don't let it
-drift into describing an old shape after a redesign.
+## What a Note and a Q/A each are
+
+- **Q/A** is the unit of personal inquiry: a question the user is
+  actually pursuing, together with the current answer they have arrived
+  at. Neither field is required to be fully formed to exist — a bare
+  label is enough to create one (see `Q-A.md` for the content model).
+- **Note** is the atomic unit of written content: what the user
+  actually writes, across whatever range of subjects (see `NOTES.md`
+  for the content model). Conceptually this category is a composed,
+  publishable document — "Article" or "Document" would describe it more
+  precisely. The name "Note" is kept because it's load-bearing in the
+  implementation well beyond identifiers: published URLs
+  (`/notes/{slug}/`), storage layout across two repositories, the
+  `notes-published` repository name, and the sync workflow all assume
+  it.
 
 ## System overview
 
 ```text
 Editor UI (browser) ──── mohokoto-worker.parkseohwa.workers.dev ──── behind Cloudflare Access
         │                         │
-        │ Note CRUD, publish/     │ GitHub App A: contents:write
-        │ unpublish               ▼
+        │ Note/Q-A CRUD,          │ GitHub App A: contents:write
+        │ publish/unpublish       ▼
         │                 content-drafts (private)
         │                 canonical source + revision history (git log)
         │
@@ -70,176 +86,26 @@ workflow. No other backend, database, or hosting exists.
 |---|---|---|
 | `mohokoto.github.io` | public | The live site (GitHub Pages). V0 static pages (`index.html`, `styles.css`) plus the synced `notes/` tree. |
 | `notes-published` | public | Intermediate artifact: rendered static HTML for currently-published Notes only. Not meant to be browsed directly. |
-| `content-drafts` | private | Canonical source for every Note (published or not) and every Q/A (mohokoto.github.io#12, #13 — has no publish state of its own). Its git log *is* the revision history (SPEC.md V1.5) — nothing else stores revisions. |
-| `worker` | private | Cloudflare Worker source. The only backend/API in the system, and also serves the Editor UI (see below). |
-
-## Data flow: Draft → Publish → Live
-
-1. Author writes in the Editor UI (served by the Worker, see below).
-   `PUT /notes/:slug` commits Markdown + frontmatter to `content-drafts`
-   via GitHub App A. Every save that actually changes title/body is one
-   commit — that history is V1.5's revision log directly, not a
-   separate feature.
-2. `POST /notes/:slug/publish`: Worker renders the Note's Markdown to
-   static HTML (`marked`), commits it to `notes-published` (App A
-   again), then calls GitHub App B to fire
-   `mohokoto.github.io`'s `sync-notes.yml` via `workflow_dispatch`.
-3. `sync-notes.yml` (runs in `mohokoto.github.io`): checks out both
-   `notes-published` and itself, `rsync -a --delete`s `notes/` from
-   the former into the latter, regenerates `notes/index.html`
-   (`.github/scripts/generate_notes_index.py`, sorted newest-first
-   using each page's `<meta name="date">`), commits and pushes if
-   anything changed. Also runs on a `schedule` (`*/5 * * * *`) — not
-   primarily as a recovery path for a failed dispatch push (see
-   [Known gaps](#known-gaps): the one observed race was actually
-   resolved by a later dispatch, not the schedule, which found nothing
-   to sync), but as a backup for the case where a dispatch was never
-   sent at all. In practice almost every commit here comes from a
-   dispatch.
-4. GitHub Pages rebuilds `mohokoto.github.io` from the new commit.
-   Typical publish-to-live latency: dispatch is near-instant, Pages
-   rebuild adds roughly 30–60s.
-
-### Note status: state transitions
-
-`status` is a free string with exactly two values in practice, `draft`
-and `published` (mohokoto.github.io#3 — deliberately not an enum).
-Save, Publish, Un-publish, and Delete are four independent actions, not
-variations of one toggle (mohokoto.github.io#9, #11) — Publish always
-means "make the current draft content the live version," regardless of
-what `status` already was, which is why "published + Publish"
-(republish) is its own row below, not a no-op. Delete is the odd one
-out structurally: every other action's "To" is still `draft` or
-`published` (the Note keeps existing), but Delete has no "To" at all —
-it's the only transition that exits the state space entirely.
-
-| From | Action (endpoint) | To | `content-drafts` | `notes-published` | Sync triggered |
-|---|---|---|---|---|---|
-| draft | Save (`PUT /notes/:slug`) | draft | commit, `savedAt` ← now — skipped entirely if title/body/sources all unchanged (mohokoto.github.io#14 added `sources`; the comparison normalizes trailing newlines on body, since a round trip through the Editor's body could otherwise register as a change on its own) | untouched | no |
-| published | Save (`PUT /notes/:slug`) | published | commit, `savedAt` ← now — same no-op guard as above | untouched — now diverges from the draft until republished | no |
-| draft | Publish (`POST /notes/:slug/publish`) | published | commit, `status` → published, `publishedAt` ← now (first time only), `lastPublishedAt` ← now | created from current draft body | yes |
-| published | Publish (`POST /notes/:slug/publish`), i.e. republish | published | commit, `lastPublishedAt` ← now (`publishedAt` untouched) | overwritten from current draft body | yes |
-| published | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit, `status` → draft | deleted | yes |
-| draft | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit written unconditionally even though nothing changes — unlike Save, this handler has no no-op guard | untouched (delete is skipped: lookup for a file that was never there returns nothing to delete) | no |
-| draft | Delete (`DELETE /notes/:slug`) | *(gone)* | file deleted | untouched (nothing published) | no |
-| published | Delete (`DELETE /notes/:slug`) | *(gone)* | file deleted | deleted | yes |
-
-The "draft + Un-publish" row isn't reachable from the Editor UI (the
-Un-publish control is hidden whenever `status` is already `draft`) but
-is real behavior of the API itself — calling it directly still writes a
-redundant commit. Not treated as a bug worth guarding against: the same
-class of no-op-but-harmless commit that PUT's own guard exists to avoid
-for Save, just far less likely to happen here since nothing routes to
-it under normal use.
-
-Deleting doesn't purge `content-drafts`' git history for that path —
-past commits stay in `git log` even though the file (and, per the "To"
-column, the Note itself) is gone. Deliberate, not an oversight: V1.5
-treats `git log` as *the* revision history, so a routine, one-click
-Delete action rewriting it would work against that rather than with it.
-Un-publish/Delete's asymmetry with the Editor UI is intentional too:
-unlike Publish/Un-publish, Delete doesn't require Un-publish first —
-deleting a published Note both takes it down and removes the draft in
-one deliberate act, since (unlike Publish vs. Un-publish) there's no
-second, different intent it could be conflated with.
-
-### Q/A: state transitions
-
-Q/A (mohokoto.github.io#12, #13) has no `status` field and no publish
-state at all — its state space is just whether it exists, so this table
-is shorter than Note's:
-
-| From | Action (endpoint) | To | `content-drafts` |
-|---|---|---|---|
-| (none) | Create (`POST /qa`) | exists | file created. `question` required (≥1 char after trim, same shape as Note's title validation) — `answer` is not; a bare label is enough to exist (mohokoto.github.io#12) |
-| exists | Save (`PUT /qa/:id`) | exists | commit only if `question`/`answer`/`relations` actually changed (same no-op guard as Note's PUT, including the same trailing-newline normalization on `answer`, mohokoto.github.io#14). A blank `question` in the request falls back to the existing value rather than being written — `??` alone isn't enough here, since it only guards a *missing* field, not an empty one |
-| exists | Delete (`DELETE /qa/:id`) | *(gone)* | file deleted. Neither other Q/A's `relations` arrays nor any Note's `sources` array (mohokoto.github.io#14) that reference this id are touched — the reference becomes dangling, rendered as unresolved in the Editor rather than erroring. A Q/A's `relations` keep only the `note` text; a Note's `sources` keep the full snapshotted question/answer text, since it was already a copy, not a live reference, before the deletion ever happened |
-
-Adding or removing a relation isn't a separate action — it's a change
-to the `relations` field, saved through the same PUT as everything
-else. The list page derives whether a Q/A is "unanswered" from `answer`
-being empty on every request rather than storing that as its own field,
-for the same reason Note doesn't store a redundant flag anywhere it can
-compute one instead.
-
-**Incoming relations (reverse lookup, mohokoto.github.io#16).** A
-relation is still stored one-sided, only on the referencing Q/A's own
-`relations` array — but #12 committed to showing it bidirectionally on
-read, which #13 never actually built. `GET /qa` now includes each
-item's `relations` alongside `question`/`savedAt`/`answered`, at no
-extra file-I/O cost since the list handler already parses every file.
-The Editor computes a Q/A's incoming relations client-side by filtering
-`allQAs` (fetched once at page load, same as before) for any item whose
-`relations` contains the current Q/A's id, and renders it as a second,
-read-only list below the existing (editable) outgoing one — no click
-navigation on either list yet (out of scope for #16, deferred to a
-future Q graph UX design issue, along with outgoing's own lack of
-navigation, mohokoto.github.io#15).
-
-A relation is one entry per pair, not one per direction — #12's
-"store one-sided, read bidirectional" line means a single relation,
-authored once by whichever side added it, shown on both ends; it does
-not mean each side gets to independently author its own note about the
-other. Even a directional relation (e.g., cause → effect) has two
-readings that are coupled, not two arbitrary free texts, and there's no
-way to derive one direction's phrasing from the other's without
-relation types, which #12 deliberately deferred. So the target-select
-dropdown excludes a Q/A both when this Q/A already relates to it *and*
-when it already relates to this Q/A. (An earlier version of this
-section said the opposite — that duplicates were fine and
-intentionally left undeduplicated — which was live-tested and found
-confusing, then corrected after re-reading #12's actual text.)
-
-The dropdown exclusion alone isn't enough to guarantee a pair is never
-stored twice: it runs against the Editor's load-time `allQAs`
-snapshot, so two tabs editing different Q/A's without reloading could
-each pass it and still both save a relation to each other. `PUT
-/qa/:id` now checks every newly-added relation's target against the
-target's *current* stored `relations` and rejects with 409 if the
-target already relates back — this closes the stale-client-cache gap
-specifically, since the check is re-run fresh on every save regardless
-of what the Editor had loaded. It does not close every race: two PUT
-requests for A and B that are genuinely concurrent (A's check reads B
-before B's write lands, and B's check reads A before A's write lands)
-could each still pass and both write, recreating a duplicate. Not worth
-closing for a single-user personal-scale tool, but worth stating
-precisely rather than implying the check is airtight. Only new
-relations are checked; a pair already in both states from before this
-check existed is left alone until someone removes one side by hand.
-
-Deleting the source side of a relation is asymmetric between the two
-lists, and this is inherent to one-sided storage, not a gap to fix:
-deleting Q/A A (which stored a relation to B) leaves B's outgoing
-`relations` untouched but its own file has no record of A ever having
-pointed at it, so B's incoming list simply no longer includes A — no
-"(deleted)" stub, because nothing was ever stored on B's side to leave
-one. This is unlike a Note's `sources` (which snapshot full text
-because they're the Note's own copy) or an outgoing relation on the
-referencing side itself (which keeps the dead `q_id` and renders it
-unresolved) — both of those have something concretely stored to render
-as a stub. Incoming relations don't, by the same one-sided-storage
-design that makes the reverse-duplicate check above necessary in the
-first place.
+| `content-drafts` | private | Canonical source for every Note (published or not) and every Q/A — neither has a publish state of its own here. Its git log *is* the revision history — nothing else stores revisions. |
+| `worker` | private | Cloudflare Worker source. The only backend/API in the system, and also serves the Editor UI. |
 
 ## Cloudflare Worker (`mohokoto-worker`)
 
 Single Hono app, one deployment target
 (`mohokoto-worker.parkseohwa.workers.dev`, no custom domain). Serves
-three kinds of things from one origin — a deliberate choice
-(mohokoto.github.io#2) to avoid the multi-origin Access/CORS surface a
-separate editor host would add:
+three kinds of things from one origin — a deliberate choice to avoid
+the multi-origin Access/CORS surface a separate editor host would add:
 
 - **JSON API** — `GET/POST /notes`, `GET/PUT/DELETE /notes/:slug`,
   `POST /notes/:slug/publish|unpublish`, `GET /notes/:slug/revisions`;
-  `GET/POST /qa`, `GET/PUT/DELETE /qa/:id`, `GET /qa/:id/revisions`
-  (mohokoto.github.io#13).
+  `GET/POST /qa`, `GET/PUT/DELETE /qa/:id`, `GET /qa/:id/revisions`.
+  What each route does is `NOTES.md`/`Q-A.md`'s concern, not this
+  document's.
 - **Editor UI** — `GET /` (Note list) and `GET /edit/:slug` (EasyMDE
   editor) for Notes; `GET /q` and `GET /q/edit/:id` for Q/A, reachable
-  only by direct URL for now, no cross-link between the two UIs
-  (mohokoto.github.io#13 — Note↔Q/A connection is separate, unbuilt
-  work; the cross-object workflow this implies is now `FLOW.md`'s
-  designated scope once written, mohokoto.github.io#17). Both rendered
-  server-side as plain HTML/CSS/JS strings
+  only by direct URL for now, no cross-link between the two UIs — the
+  cross-object workflow this implies is `BEHAVIOR.md`'s concern once
+  written. Both rendered server-side as plain HTML/CSS/JS strings
   (`src/ui.ts`). No build step, no framework — templates are TypeScript
   template literals. EasyMDE and its dependency (Font Awesome, loaded by
   EasyMDE itself) come from jsDelivr at runtime, not bundled.
@@ -252,36 +118,30 @@ separate editor host would add:
 except the static assets: verifies the `Cf-Access-Jwt-Assertion` header
 against Cloudflare Access's JWKS endpoint. This is deliberate
 defense-in-depth on top of Access's own edge-level enforcement, not a
-substitute for it (mohokoto.github.io#1).
+substitute for it.
 
 KV namespace `TOKEN_CACHE` holds GitHub App installation tokens
 (55-minute TTL, under GitHub's 1-hour expiry) so a token isn't minted
 on every request, and the resolved `<html lang>` V0 currently declares
-(`site-lang.ts`, 1-hour TTL) — see [Language](#language-follows-v0)
-below.
+(`site-lang.ts`, 1-hour TTL) — see Language, below.
 
 ## Two GitHub Apps, not one
 
 A single GitHub App's permissions are uniform across every repo it's
-installed on — there's no way to grant `contents:write` on one repo
-and only `actions:write` on another within one App
-(discovered the hard way: mohokoto.github.io#3). So there are two:
+installed on — there's no way to grant `contents:write` on one repo and
+only `actions:write` on another within one App. So there are two:
 
 | App | Permission | Installed on |
 |---|---|---|
 | `mohokoto-content-sync` (App A) | `contents:write` | `content-drafts`, `notes-published` |
 | `mohokoto-publish-trigger` (App B) | `actions:write` only | `mohokoto.github.io` |
 
-App B can *only* dispatch workflow runs — it has no path to write
-file content anywhere, including in `mohokoto.github.io`. This is the
+App B can *only* dispatch workflow runs — it has no path to write file
+content anywhere, including in `mohokoto.github.io`. This is the
 blast-radius boundary: even a fully compromised Worker can trigger
-syncs but can't rewrite the live site's source or touch Note drafts
-directly through App B.
-
-Constraint this creates: any new workflow in `mohokoto.github.io`
-that's triggerable via `workflow_dispatch` must declare a minimal
-`permissions:` block itself, since App B's `actions:write` doesn't
-distinguish which workflow it's dispatching.
+syncs but can't rewrite the live site's source or touch Note/Q-A drafts
+directly through App B. (The constraint this creates for any new
+`workflow_dispatch`-triggerable workflow is a `BEHAVIOR.md` norm.)
 
 ## Access control
 
@@ -295,12 +155,10 @@ run) — one Access Application (`mohokoto-worker`), one policy: allow
 exactly to `/manifest.json` and `/icons/*`. Added because the Web App
 Manifest spec fetches the manifest and its referenced icons in a way
 that doesn't reliably carry Access's session cookie even with
-`crossorigin="use-credentials"` set (mohokoto.github.io#8) — installability
-silently failed until these paths were made public. The files
-themselves are non-sensitive (name, icon, theme color). Verified live
-that the bypass doesn't leak beyond those two prefixes — adjacent paths
-(`/icons` without a file, `/notes`, `/edit/:slug`) still 302 to the
-Access login.
+`crossorigin="use-credentials"` set — installability silently failed
+until these paths were made public. The files themselves are
+non-sensitive (name, icon, theme color). Verified live that the bypass
+doesn't leak beyond those two prefixes.
 
 ## PWA
 
@@ -311,19 +169,16 @@ icon sizes, `start_url`, `display: standalone`,
 `prefer_related_applications: false`. No service worker — confirmed
 against Chromium's actual criteria that one isn't required for
 installability, and none of Phase 2+ (offline shell caching, local
-draft storage, sync-on-reconnect) has been built. If that's ever
-picked up, it's new work, not something implied by what's here.
+draft storage, sync-on-reconnect) has been built.
 
 ## Language follows V0
 
-Editor UI chrome (button labels, messages — not Note content, which is
-whatever language the author writes) is in English or Korean,
+Editor UI chrome (button labels, messages — not Note/Q-A content, which
+is whatever language the author writes) is in English or Korean,
 whichever `mohokoto.github.io`'s own `<html lang>` currently declares.
-The Worker fetches `https://mohokoto.github.io/` server-side (no CORS
-concern — that's a browser-only restriction) and caches the resolved
-language in KV for an hour. Not the visitor's browser language, and
-not hardcoded — if V0's declared language changes, the editor follows
-without a code change (mohokoto.github.io#7).
+The Worker fetches `https://mohokoto.github.io/` server-side and caches
+the resolved language in KV for an hour. Not the visitor's browser
+language, and not hardcoded.
 
 ## Commit authorship
 
@@ -331,97 +186,12 @@ Every commit App A makes (`content-drafts`, `notes-published`) sets
 `author`/`committer` to `mohokoto <178871570+mohokoto@users.noreply.github.com>`
 — GitHub's ID-based noreply address, not a real email. `notes-published`
 is public; an earlier version of this used a real address there before
-being caught in review and the exposed history rewritten
-(mohokoto.github.io#7).
+being caught in review and the exposed history rewritten. This is a
+description of current behavior, not a forward-binding constraint on
+any future commit-writing mechanism — App A is currently the only one.
 
 ## Known gaps
 
-- **A Note's view of its sources' live state (mohokoto.github.io#14)
-  goes stale without a page reload.** The Editor fetches the full Q/A
-  list once, on load, to decide whether each source is up to date or
-  its target has been deleted; nothing re-fetches it afterward. Editing
-  or deleting a source Q/A in another tab while the Note stays open
-  won't be reflected until the Note's edit page is reloaded. Low risk
-  for a single-author tool with no concurrent editors, but a real gap
-  in the state model as implemented, not just in principle.
-- **Delete's compliance with `invariants.md`'s Change over time is
-  conditional, not structural.** That invariant excludes a user's own
-  explicit, confirmed deletion from what it constrains (see
-  `invariants.md` and mohokoto.github.io#12) — but nothing in
-  `DELETE /notes/:slug` itself enforces "human-initiated and confirmed
-  per Note." The endpoint just deletes whatever slug it's given; the
-  Editor UI's `confirm()` dialog is the only thing currently making
-  that true. If a future feature reuses this endpoint for bulk or
-  automated deletion (a cleanup script, an AI-driven suggestion acted
-  on without per-Note confirmation), that safety property would no
-  longer hold and this would need re-review against the invariant, not
-  be assumed to still comply.
 - No automated tests anywhere in the Worker or the sync workflow.
-  Everything so far has been verified by live smoke-testing against
-  the real deployed system, not by a test suite.
-- **The Publish/Un-publish/Delete pipelines aren't atomic.** All three
-  are 2–3 sequential network calls with no rollback: Publish writes
-  `content-drafts` (status, `publishedAt`/`lastPublishedAt`) *then*
-  renders and writes `notes-published` *then* triggers the sync
-  workflow (`src/index.ts`); Un-publish and Delete both write/delete
-  `content-drafts` *then* delete from `notes-published`. If a later
-  step throws (transient GitHub API error, rate limit) after an
-  earlier one succeeded, `content-drafts` and the live site end up
-  disagreeing — e.g. a failed Un-publish delete leaves the editor
-  saying "draft" while the old page is still publicly live, with
-  nothing to reconcile it automatically. The state transition table
-  above documents the intended end state of each transition, not this
-  partial-failure case — its "To" column assumes all steps landed.
-  Same shape of gap as the `sync-notes.yml` race below, one layer up.
-  **Delete is the worst case of the three**: if its `content-drafts`
-  delete succeeds but the `notes-published` delete then fails, the
-  Note is gone from the Editor entirely (`GET /notes/:slug` now 404s)
-  with no way to retry through the app at all, while the old page
-  stays live indefinitely - unlike Publish/Un-publish, where the Note
-  still exists in `content-drafts` and the mismatch is at least
-  visible and re-triggerable from the Editor.
-- **`content-drafts` writes across Save/Publish/Un-publish/Delete aren't
-  isolated from each other beyond the Editor's own UI lock.** All
-  four act on the same file by `sha` (read-then-write, or read-then-
-  delete). The Editor serializes them client-side (one `busy` flag
-  disables all four buttons for the duration of any one — added after
-  splitting the old single Publish/Un-publish toggle into independent
-  buttons removed that serialization for free, mohokoto.github.io#9,
-  #11), but nothing enforces this server-side: two browser tabs, or a
-  direct API call racing the Editor, can still send overlapping writes.
-  GitHub rejects whichever lands second against a stale `sha`, surfaced
-  only as a generic
-  failure alert — not a data-loss risk, but not a handled case either.
-- **`sync-notes.yml` has no retry on a concurrent-dispatch push race.**
-  Reproduced live: two `workflow_dispatch` runs 6s apart
-  (2026-08-12T05:06:06Z started first, T05:06:12Z started second). The
-  first finished its commit+push before the second reached its own
-  push, so the second's `git push` was rejected non-fast-forward (exact
-  error confirmed in the job log) — by the time it failed, the first
-  run had already pushed the same target state (both synced from the
-  same `notes-published` content, 6s apart with nothing published in
-  between). Nothing was actually missing: the next scheduled run
-  10 minutes later logged "No changes to sync." — confirming the state
-  was already correct, not that it healed something. Because the
-  workflow always syncs *full current state* via `rsync --delete`
-  rather than an incremental diff, a genuine loss (two dispatches
-  racing over materially *different* content) would self-heal on
-  whatever run — dispatch or schedule — processes state next; this
-  incident just didn't require that, since the failed run was
-  redundant from the moment it lost the race. The real gap is
-  narrower than "content gets lost": a push can fail silently, with
-  no retry and no alert, and nothing in this repo would surface that
-  it happened.
-
-  **Second occurrence, different racer**: reproduced again on
-  2026-08-12T10:35Z, this time not two dispatches racing each other but
-  a dispatch racing a *manual* `git push` (active development on this
-  repo's own files - styles.css, the sync script - happening
-  concurrently with live publish/unpublish testing that triggers the
-  same workflow). Rejected non-fast-forward, same as before; unlike the
-  first incident, this one *did* leave the live site stale (a Note's
-  updated byline didn't appear) until manually re-triggered, since
-  nothing else re-synced state on its own before that. Confirms the
-  race isn't limited to dispatch-vs-dispatch - anything that pushes to
-  this repo's main is a participant, including a human editing docs
-  here at the same time someone's using the Editor.
+  Everything so far has been verified by live smoke-testing against the
+  real deployed system, not by a test suite.
