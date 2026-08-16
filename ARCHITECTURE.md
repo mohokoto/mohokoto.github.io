@@ -148,7 +148,7 @@ is shorter than Note's:
 |---|---|---|---|
 | (none) | Create (`POST /qa`) | exists | file created. `question` required (≥1 char after trim, same shape as Note's title validation) — `answer` is not; a bare label is enough to exist (mohokoto.github.io#12) |
 | exists | Save (`PUT /qa/:id`) | exists | commit only if `question`/`answer`/`relations` actually changed (same no-op guard as Note's PUT, including the same trailing-newline normalization on `answer`, mohokoto.github.io#14). A blank `question` in the request falls back to the existing value rather than being written — `??` alone isn't enough here, since it only guards a *missing* field, not an empty one |
-| exists | Delete (`DELETE /qa/:id`) | *(gone)* | file deleted. Other Q/A's `relations` arrays that reference this id are not touched — the reference becomes dangling, rendered as unresolved in the Editor rather than erroring, which is what keeps "there was a connection and why" (the `note` text) even once its target is gone |
+| exists | Delete (`DELETE /qa/:id`) | *(gone)* | file deleted. Neither other Q/A's `relations` arrays nor any Note's `sources` array (mohokoto.github.io#14) that reference this id are touched — the reference becomes dangling, rendered as unresolved in the Editor rather than erroring. A Q/A's `relations` keep only the `note` text; a Note's `sources` keep the full snapshotted question/answer text, since it was already a copy, not a live reference, before the deletion ever happened |
 
 Adding or removing a relation isn't a separate action — it's a change
 to the `relations` field, saved through the same PUT as everything
@@ -270,6 +270,14 @@ being caught in review and the exposed history rewritten
 
 ## Known gaps
 
+- **A Note's view of its sources' live state (mohokoto.github.io#14)
+  goes stale without a page reload.** The Editor fetches the full Q/A
+  list once, on load, to decide whether each source is up to date or
+  its target has been deleted; nothing re-fetches it afterward. Editing
+  or deleting a source Q/A in another tab while the Note stays open
+  won't be reflected until the Note's edit page is reloaded. Low risk
+  for a single-author tool with no concurrent editors, but a real gap
+  in the state model as implemented, not just in principle.
 - **Delete's compliance with `invariants.md`'s Change over time is
   conditional, not structural.** That invariant excludes a user's own
   explicit, confirmed deletion from what it constrains (see
