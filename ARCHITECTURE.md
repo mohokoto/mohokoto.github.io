@@ -180,11 +180,36 @@ readings that are coupled, not two arbitrary free texts, and there's no
 way to derive one direction's phrasing from the other's without
 relation types, which #12 deliberately deferred. So the target-select
 dropdown excludes a Q/A both when this Q/A already relates to it *and*
-when it already relates to this Q/A — the same pair can't end up
-stored twice, once from each side. (An earlier version of this section
-said the opposite — that duplicates were fine and intentionally left
-undeduplicated — which was live-tested and found confusing, then
-corrected after re-reading #12's actual text.)
+when it already relates to this Q/A. (An earlier version of this
+section said the opposite — that duplicates were fine and
+intentionally left undeduplicated — which was live-tested and found
+confusing, then corrected after re-reading #12's actual text.)
+
+The dropdown exclusion alone isn't enough to guarantee a pair is never
+stored twice: it runs against the Editor's load-time `allQAs`
+snapshot, so two tabs editing different Q/A's without reloading could
+each pass it and still both save a relation to each other. `PUT
+/qa/:id` now checks every newly-added relation's target against the
+target's *current* stored `relations` and rejects with 409 if the
+target already relates back — this is the only check that actually
+holds regardless of how the request was made or how stale the client's
+view was. Only new relations are checked; a pair already in both
+states from before this check existed is left alone until someone
+removes one side by hand.
+
+Deleting the source side of a relation is asymmetric between the two
+lists, and this is inherent to one-sided storage, not a gap to fix:
+deleting Q/A A (which stored a relation to B) leaves B's outgoing
+`relations` untouched but its own file has no record of A ever having
+pointed at it, so B's incoming list simply no longer includes A — no
+"(deleted)" stub, because nothing was ever stored on B's side to leave
+one. This is unlike a Note's `sources` (which snapshot full text
+because they're the Note's own copy) or an outgoing relation on the
+referencing side itself (which keeps the dead `q_id` and renders it
+unresolved) — both of those have something concretely stored to render
+as a stub. Incoming relations don't, by the same one-sided-storage
+design that makes the reverse-duplicate check above necessary in the
+first place.
 
 ## Cloudflare Worker (`mohokoto-worker`)
 
