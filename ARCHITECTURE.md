@@ -157,6 +157,28 @@ being empty on every request rather than storing that as its own field,
 for the same reason Note doesn't store a redundant flag anywhere it can
 compute one instead.
 
+**Incoming relations (reverse lookup, mohokoto.github.io#16).** A
+relation is still stored one-sided, only on the referencing Q/A's own
+`relations` array — but #12 committed to showing it bidirectionally on
+read, which #13 never actually built. `GET /qa` now includes each
+item's `relations` alongside `question`/`savedAt`/`answered`, at no
+extra file-I/O cost since the list handler already parses every file.
+The Editor computes a Q/A's incoming relations client-side by filtering
+`allQAs` (fetched once at page load, same as before) for any item whose
+`relations` contains the current Q/A's id, and renders it as a second,
+read-only list below the existing (editable) outgoing one — no click
+navigation on either list yet (out of scope for #16, deferred to a
+future Q graph UX design issue, along with outgoing's own lack of
+navigation, mohokoto.github.io#15).
+
+If two Q/A's each independently add a relation to the other (Q1→Q2 and
+Q2→Q1 both stored), the target shows up in both the outgoing and the
+incoming list on either one's edit page — deliberately not deduplicated
+or merged. The two entries are independently authored (the `note` text
+on each side can differ) and collapsing them would silently drop
+whichever side's note isn't kept, so this is same-target-shown-twice by
+design, not a bug (#16 review decision).
+
 ## Cloudflare Worker (`mohokoto-worker`)
 
 Single Hono app, one deployment target
