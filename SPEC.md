@@ -207,7 +207,9 @@ over time.
   composes from it, and that Note publishes (per Part 2), becomes
   public.
 - How a Note draws on Q/A (referencing, snapshotting) is out of scope
-  for this requirement set — tracked as future work.
+  for this requirement set — it's a cross-object workflow requirement,
+  not a per-object one, and belongs in `FLOW.md` (planned, not yet
+  created — see mohokoto.github.io#17), not in this Part.
 
 ### V3.3 Content model requirements
 

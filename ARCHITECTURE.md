@@ -18,7 +18,12 @@ product.md        (why — long-term philosophy)
     ↓
 invariants.md      (what must always hold, regardless of implementation)
     ↓
-SPEC.md            (what must be built — required behavior, technology-agnostic)
+SPEC.md            (what must be built — required behavior, technology-agnostic,
+                     per object)
+    ↓
+FLOW.md            (what must be built — required cross-object interaction/
+                     workflow, technology-agnostic; planned, not yet created —
+                     see mohokoto.github.io#17)
     ↓
 ARCHITECTURE.md    (this document — what's actually built, right now)
     ↓
@@ -232,7 +237,9 @@ separate editor host would add:
   editor) for Notes; `GET /q` and `GET /q/edit/:id` for Q/A, reachable
   only by direct URL for now, no cross-link between the two UIs
   (mohokoto.github.io#13 — Note↔Q/A connection is separate, unbuilt
-  work). Both rendered server-side as plain HTML/CSS/JS strings
+  work; the cross-object workflow this implies is now `FLOW.md`'s
+  designated scope once written, mohokoto.github.io#17). Both rendered
+  server-side as plain HTML/CSS/JS strings
   (`src/ui.ts`). No build step, no framework — templates are TypeScript
   template literals. EasyMDE and its dependency (Font Awesome, loaded by
   EasyMDE itself) come from jsDelivr at runtime, not bundled.

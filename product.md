@@ -189,7 +189,12 @@ product.md        (why — long-term philosophy, this document)
     ↓
 invariants.md      (what must always hold, regardless of implementation)
     ↓
-SPEC.md            (what must be built — required behavior, technology-agnostic)
+SPEC.md            (what must be built — required behavior, technology-agnostic,
+                     per object)
+    ↓
+FLOW.md            (what must be built — required cross-object interaction/
+                     workflow, technology-agnostic; planned, not yet created —
+                     see mohokoto.github.io#17)
     ↓
 ARCHITECTURE.md    (what's actually built, right now — normative, not a plan)
     ↓
