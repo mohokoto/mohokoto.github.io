@@ -110,8 +110,8 @@ it's the only transition that exits the state space entirely.
 
 | From | Action (endpoint) | To | `content-drafts` | `notes-published` | Sync triggered |
 |---|---|---|---|---|---|
-| draft | Save (`PUT /notes/:slug`) | draft | commit, `savedAt` ← now — skipped entirely if title/body unchanged | untouched | no |
-| published | Save (`PUT /notes/:slug`) | published | commit, `savedAt` ← now — skipped entirely if title/body unchanged | untouched — now diverges from the draft until republished | no |
+| draft | Save (`PUT /notes/:slug`) | draft | commit, `savedAt` ← now — skipped entirely if title/body/sources all unchanged (mohokoto.github.io#14 added `sources`; the comparison normalizes trailing newlines on body, since a round trip through the Editor's body could otherwise register as a change on its own) | untouched | no |
+| published | Save (`PUT /notes/:slug`) | published | commit, `savedAt` ← now — same no-op guard as above | untouched — now diverges from the draft until republished | no |
 | draft | Publish (`POST /notes/:slug/publish`) | published | commit, `status` → published, `publishedAt` ← now (first time only), `lastPublishedAt` ← now | created from current draft body | yes |
 | published | Publish (`POST /notes/:slug/publish`), i.e. republish | published | commit, `lastPublishedAt` ← now (`publishedAt` untouched) | overwritten from current draft body | yes |
 | published | Un-publish (`POST /notes/:slug/unpublish`) | draft | commit, `status` → draft | deleted | yes |
@@ -147,7 +147,7 @@ is shorter than Note's:
 | From | Action (endpoint) | To | `content-drafts` |
 |---|---|---|---|
 | (none) | Create (`POST /qa`) | exists | file created. `question` required (≥1 char after trim, same shape as Note's title validation) — `answer` is not; a bare label is enough to exist (mohokoto.github.io#12) |
-| exists | Save (`PUT /qa/:id`) | exists | commit only if `question`/`answer`/`relations` actually changed (same no-op guard as Note's PUT). A blank `question` in the request falls back to the existing value rather than being written — `??` alone isn't enough here, since it only guards a *missing* field, not an empty one |
+| exists | Save (`PUT /qa/:id`) | exists | commit only if `question`/`answer`/`relations` actually changed (same no-op guard as Note's PUT, including the same trailing-newline normalization on `answer`, mohokoto.github.io#14). A blank `question` in the request falls back to the existing value rather than being written — `??` alone isn't enough here, since it only guards a *missing* field, not an empty one |
 | exists | Delete (`DELETE /qa/:id`) | *(gone)* | file deleted. Other Q/A's `relations` arrays that reference this id are not touched — the reference becomes dangling, rendered as unresolved in the Editor rather than erroring, which is what keeps "there was a connection and why" (the `note` text) even once its target is gone |
 
 Adding or removing a relation isn't a separate action — it's a change
