@@ -101,14 +101,16 @@ the multi-origin Access/CORS surface a separate editor host would add:
   `GET/POST /qa`, `GET/PUT/DELETE /qa/:id`, `GET /qa/:id/revisions`.
   What each route does is `NOTES.md`/`Q-A.md`'s concern, not this
   document's.
-- **Editor UI** — `GET /` (Note list) and `GET /edit/:slug` (EasyMDE
-  editor) for Notes; `GET /q` and `GET /q/edit/:id` for Q/A, reachable
-  only by direct URL for now, no cross-link between the two UIs — the
-  cross-object workflow this implies is `BEHAVIOR.md`'s concern once
-  written. Both rendered server-side as plain HTML/CSS/JS strings
-  (`src/ui.ts`). No build step, no framework — templates are TypeScript
-  template literals. EasyMDE and its dependency (Font Awesome, loaded by
-  EasyMDE itself) come from jsDelivr at runtime, not bundled.
+- **Editor UI** — `GET /` and `GET /q` (both serve the Q/A list — Q/A is
+  the main screen, not Notes; see `BEHAVIOR.md`'s Q selection → Note
+  creation workflow) and `GET /q/edit/:id` (Q/A editor); `GET /n` (Note
+  list) and `GET /edit/:slug` (Note editor). A persistent nav in the
+  shared page header links every page to both lists, regardless of
+  which one is home. Both rendered server-side as plain HTML/CSS/JS
+  strings (`src/ui.ts`). No build step, no framework — templates are
+  TypeScript template literals. EasyMDE and its dependency (Font
+  Awesome, loaded by EasyMDE itself) come from jsDelivr at runtime, not
+  bundled.
 - **Static assets** — `manifest.json` and PWA icons, served via
   Workers static assets (`[assets]` in `wrangler.toml`, files in
   `public/`) rather than a Hono route. First and only binary content
