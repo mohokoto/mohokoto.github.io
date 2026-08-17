@@ -51,7 +51,26 @@ defers.
 alongside `question`/`savedAt`/`answered`. The Editor computes a Q/A's
 *incoming* relations client-side by filtering the full Q/A list for any
 item whose `relations` contains the current Q/A's id, and renders it as
-a second, read-only list below the editable outgoing one.
+a second, read-only list below the editable outgoing one. Both lists
+are clickable through to the target's own edit page (mohokoto.github.io#21
+— outgoing's link-ification was deliberately excluded from #16's scope
+and deferred to this workflow-design issue).
+
+**Which Q/A's the list itself surfaces relation counts for.** `GET /qa`'s
+list page (not just the editor) shows each Q/A's total relation count —
+outgoing plus incoming, computed client-side the same way the editor's
+incoming section is. Outgoing alone would show 0 for a Q/A that's
+heavily referenced but rarely references anything itself, defeating a
+count meant to surface graph structure while scanning the list
+(mohokoto.github.io#21).
+
+**Which Notes cite a Q/A.** The Editor also derives, read-only, every
+Note whose `sources` reference this Q/A's id — by scanning `GET /notes`
+(which includes `sources` per item, see `NOTES.md`), the same
+"nothing's stored on this side, derive it from the other side" shape as
+incoming relations. Rendered as a third section, linking through to
+each citing Note's edit page (mohokoto.github.io#21, closing a gap #15
+found: Q/A had no way to see which Notes drew on it).
 
 **Preventing duplicate pairs.** The target-select dropdown excludes a
 Q/A both when this Q/A already relates to it *and* when it already

@@ -33,11 +33,31 @@ workflow it's dispatching, so a workflow that omits its own
 `permissions:` block would run with whatever GitHub's default grants,
 not a scoped-down one.
 
-## Cross-object workflow (not yet written)
+## Cross-object workflow: Q selection → Note creation
 
-How a user moves from exploring Q/A and their relations to composing a
-Note that draws on several of them is a Global/Behavior norm once
-designed — it spans the Q/A and Notes subsystems and isn't confined to
-either. Not yet designed (mohokoto.github.io#15 audited the current gap
-without designing a replacement); this section is populated once that
-design work concludes.
+Moving from exploring Q/A's and their relations to composing a Note
+that draws on several of them spans the Q/A and Notes subsystems, so
+the workflow itself lives here rather than in either subsystem's own
+document (mohokoto.github.io#15 identified the gap; #20 settled the
+underlying Q graph model — cycles allowed, no forced acyclicity; #21
+designed and built this workflow for Desktop). Mobile portrait/landscape
+are explicitly deferred to a future issue, not covered here.
+
+Selection is scoped to the Q/A list page's own client-side memory —
+picking several Q/A's to write from is a one-page task, and navigating
+away (including into an individual Q/A's own edit page) resets it.
+Nothing about the selection is persisted server-side or across page
+loads.
+
+| From | Action | To |
+|---|---|---|
+| Q/A list, 0 selected | check a Q/A row | 1 selected, selection tray shown |
+| N selected | check another row | N+1 selected |
+| N selected | uncheck a row | N-1 selected (tray hidden again at 0) |
+| N selected (N≥1) | click "Start Note" | new Note created immediately (title = first selected Q/A's question, `sources` = snapshots of every selected Q/A's current content), Note editor opens |
+| N selected | leave the Q/A list page | 0 selected | selection is page state; no separate handling needed |
+
+"Start Note" fetches each selected Q/A's full content (the list
+response doesn't carry answer text) and calls `POST /notes` once with
+the assembled `sources` — see `NOTES.md`'s "Creating from selected
+Q/A's" for the Notes-subsystem side of this call.

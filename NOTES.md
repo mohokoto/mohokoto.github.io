@@ -44,6 +44,18 @@ added or last refreshed: a later change to the source Q/A does not
 propagate into the Note, and is pulled in only when the user explicitly
 refreshes that source. Editing a Note never edits a Q/A back.
 
+Each source in the Editor's sources list links through to its Q/A's own
+edit page when that Q/A still exists (mohokoto.github.io#21 — a
+deleted source has nowhere to link, same as Q/A's own dangling outgoing
+relations). `GET /notes` includes `sources` per item (not just the
+single-Note `GET /notes/:slug`), so a Q/A's own editor can derive which
+Notes cite it by scanning the list (see `Q-A.md`'s "Which Notes cite a
+Q/A" — nothing about this is stored on the Q/A side itself). The button
+that adds a source is labeled distinctly from Q/A's own relation "Add"
+button, since the two add different kinds of things to different kinds
+of lists (mohokoto.github.io#21, closing a #15 finding: both reused the
+same "Add" label despite meaning different actions).
+
 ## Editing and saving
 
 - The author can create a new Note and save it as a Draft at any point,
@@ -54,6 +66,17 @@ refreshes that source. Editing a Note never edits a Q/A back.
 - Publishing a Note makes it visible to visitors at a stable URL
   (`/notes/{slug}/`).
 - Published content must be revertible to a non-public state.
+
+**Creating from selected Q/A's.** `POST /notes` accepts an optional
+`sources` array alongside `title`, pre-filling the new Note with
+snapshots of the selected Q/A's content at creation time — the same
+snapshot semantics as adding a source later, just done at the moment of
+creation instead. This is the entry point for `Q-A.md`'s Q/A-list
+multi-select ("Start Note"): the Note is created immediately (no
+intermediate title-entry step) using the first selected Q/A's question
+as the initial title, and the author lands straight in the Note editor
+(mohokoto.github.io#21 — matches the existing title-only create flow's
+"create immediately, edit from there" shape).
 
 ## Revision
 
@@ -77,6 +100,12 @@ refreshes that source. Editing a Note never edits a Q/A back.
 3. `sync-notes.yml` syncs `notes-published` into `mohokoto.github.io`
    and regenerates the Notes index, sorted newest-first.
 4. GitHub Pages rebuilds the live site from the new commit.
+
+Once published, the Editor shows a link to the Note's live URL next to
+its status badge (mohokoto.github.io#21, closing a #15 finding — this
+was the only direction of the editor/live-page link missing; the
+reverse, a link from the published page back to this private editor,
+stays intentionally absent, mohokoto.github.io#15).
 
 ## State transitions
 
