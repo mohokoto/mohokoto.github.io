@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dantok Stateful Event-Driven Actor Runtime · mohokoto</title>
+<!-- Machine-readable, not just a visual nicety - the V0 sync workflow
+     reads these to sort/display the notes index page it generates
+     (mohokoto.github.io#8, #9). "date" = first published, stable across
+     republishes; "updated" here = most recent (re)publish - NOT the
+     Draft's own updated field (last save), a different concept. -->
+<meta name="date" content="2026-08-21T08:15:16.076Z">
+<meta name="updated" content="2026-08-21T08:15:16.076Z">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+<nav aria-label="Primary">
+<a href="/#home" class="brand">mohokoto</a>
+<ul>
+<li><a href="/#about">About</a></li>
+<li><a href="/#projects">Projects</a></li>
+<li><a href="/notes/">Notes</a></li>
+<li><a href="/#links">Links</a></li>
+</ul>
+</nav>
+</header>
+<main id="main">
+<article>
+<a class="back-link" href="/notes/">&larr; Notes</a>
+<h1>Dantok Stateful Event-Driven Actor Runtime</h1>
+<p class="byline"><time datetime="2026-08-21T08:15:16.076Z">2026년 8월 21일</time></p>
+<p>Dantok Stateful Event-Driven Actor Runtime</p>
+<ol>
+<li>Purpose</li>
+</ol>
+<p>Dantok의 실행 모델을 중앙 scheduler가 캐릭터의 발화를 순차적으로 지시하는 구조에서,</p>
+<p>«지속 상태를 가진 여러 Actor가 공유 세계를 관찰하고, 각자의 상태에 따라 독립적으로 인지·평가·행동하며, 그 결과를 하나의 authoritative Room state에 반영하는 구조»</p>
+<p>로 확장한다.</p>
+<p>핵심 원칙은 다음과 같다.</p>
+<ul>
+<li>Stateful — Room과 Actor의 상태는 사건 사이에도 지속된다.</li>
+<li>Event-driven — 지속적인 polling/tick을 필수로 하지 않고 사건과 의미 있는 시간 경계가 계산을 촉발한다.</li>
+<li>Actor-oriented — 각 Character가 독립적인 cognitive lifecycle을 가진다.</li>
+<li>Authoritative world — Agency는 Actor에 분산되지만 shared-world authority는 Room에 있다.</li>
+<li>Recoverable reality — 확정된 세계 상태는 transient execution의 생존 여부와 무관하게 복구 가능해야 한다.</li>
+</ul>
+<p>현재 Dantok 구현은 한 Node process 안에서 deterministic scheduling, generation slot, interpretation/realization, settlement, publication, commit 및 global logical-attempt gate를 중앙 Room Runtime이 조합한다.  현재 scheduling state에는 character별 pressure, threshold, cooldown, channel attention 및 read cursor가 이미 존재한다.  Target architecture는 이 기존 모델을 단순히 &quot;async/await&quot;로 병렬화하는 것이 아니라 행동 agency의 소유권을 Room에서 Character-Actor로 재배치한다.</p>
+<hr>
+<ol start="2">
+<li><p>Core Model</p>
+<pre><code>                  ROOM / WORLD
+                       │
+          authoritative state
+                       │
+      ┌────────────────┼────────────────┐
+      │                │                │
+      ▼                ▼                ▼
+ Marilyn Actor     Audrey Actor      Grace Actor
+      │                │                │
+ perception        perception       perception
+      ↓                ↓                ↓
+  appraisal         appraisal        appraisal
+      ↓                ↓                ↓
+   pressure         pressure         pressure
+      ↓                ↓                ↓
+  realization      realization      realization
+      │                │                │
+      └────────────────┼────────────────┘
+                       ↓
+                action requests
+                       ↓
+             authoritative commit
+                       ↓
+                  ROOM STATE&#39;
+</code></pre>
+</li>
+</ol>
+<p>핵심 관계는 다음과 같다.</p>
+<p>«Actor가 행동을 생성하고, Room이 그 행동이 공유 세계의 사실이 되는 것을 확정한다.»</p>
+<p>이는 다음 두 문장을 함께 만족한다.</p>
+<p>«Agency is distributed.
+World authority is centralized.»</p>
+<hr>
+<ol start="3">
+<li>Architectural Boundaries</li>
+</ol>
+<p>3.1 Room</p>
+<p>Room은 shared-world authority다.</p>
+<p>Room owns</p>
+<ul>
+<li>authoritative Room state</li>
+<li>canonical event history</li>
+<li>message publication</li>
+<li>commit</li>
+<li>shared-world conflict resolution</li>
+<li>room-wide invariants</li>
+<li>actor가 관찰할 world snapshot/version</li>
+<li>durable persistence boundary</li>
+<li>shared temporal context</li>
+</ul>
+<p>Room does not directly own</p>
+<ul>
+<li>특정 Actor에게 발화를 명령하는 것</li>
+<li>Actor의 appraisal</li>
+<li>Actor의 pressure</li>
+<li>Actor의 내부 cognitive state</li>
+</ul>
+<p>현재 구현에서는 이러한 책임들이 deterministic scheduler와 generation lifecycle에 집중되어 있다.  Target에서는 world authority와 commit은 Room에 남기고 행동의 발의권을 Actor로 이동시킨다.</p>
+<hr>
+<p>3.2 Actor</p>
+<p>Actor는 특정 Room 안에서 Character를 실행하는 autonomous cognitive unit이다.</p>
+<p>Actor가 소유할 수 있는 상태:</p>
+<ul>
+<li>personality / Character configuration</li>
+<li>appraisal state</li>
+<li>pressure</li>
+<li>attention</li>
+<li>read/unread state</li>
+<li>actor-local memory</li>
+<li>in-flight cognitive work</li>
+<li>pending action proposal</li>
+<li>기타 Character-specific persistent state</li>
+</ul>
+<p>Actor는 다른 Actor의 내부 상태나 authoritative Room state를 직접 mutation하지 않는다.</p>
+<p>Actor A ──action request──→ Room
+Actor B ──action request──→ Room</p>
+<hr>
+<ol start="4">
+<li>Character and Actor</li>
+</ol>
+<p>Character와 Actor는 개념적으로 구별한다.</p>
+<ul>
+<li>Character — 인물의 정의, 정체성 및 정적 구성</li>
+<li>Actor — 특정 Room에서 그 Character가 실제로 살아 움직이는 실행 인스턴스</li>
+</ul>
+<p>Character
+   +
+Room-specific state
+   ↓
+Actor instance</p>
+<p>따라서 같은 Character를 여러 Room에서 사용할 수 있다.</p>
+<p>Marilyn Character
+       │
+   ┌───┴────┐
+   ▼        ▼
+Actor@A   Actor@B</p>
+<p>Personality/configuration은 공유할 수 있지만 pressure, relationship, read state, appraisal, memory 등 Room-specific state는 독립적일 수 있다.</p>
+<hr>
+<ol start="5">
+<li>Cognitive Pipeline</li>
+</ol>
+<p>기본 cognitive lifecycle은 다음과 같다.</p>
+<p>WORLD EVENT
+    ↓
+PERCEPTION
+    ↓
+APPRAISAL
+    ↓
+PRESSURE / INTERNAL STATE UPDATE
+    ↓
+ACTION ELIGIBILITY
+    ↓
+REALIZATION
+    ↓
+ACTION / PUBLISH REQUEST</p>
+<p>이 단계는 semantic model이다.</p>
+<p>각 단계가 몇 개의 LLM invocation으로 구현되는지는 별도의 execution decision이다.</p>
+<p>가능한 구현:</p>
+<ul>
+<li>단일 LLM 호출</li>
+<li>복수 LLM 호출</li>
+<li>직렬 호출</li>
+<li>병렬 호출</li>
+<li>부분 병렬</li>
+<li>deterministic computation + LLM 조합</li>
+</ul>
+<p>따라서:</p>
+<p>«Cognitive decomposition과 invocation topology를 conflation하지 않는다.»</p>
+<hr>
+<ol start="6">
+<li>Interpretation Asymmetry</li>
+</ol>
+<p>Interpretation에는 최소 두 가지 의미적 책임이 있을 수 있다.</p>
+<p>6.1 Common Ground / Knowledge Interpretation</p>
+<p>공유 세계가 무엇을 알게 되었는지를 해석한다.</p>
+<p>event / message
+      ↓
+CG / knowledge interpretation
+      ↓
+shared knowledge update</p>
+<p>6.2 Actor Appraisal Interpretation</p>
+<p>각 Actor가 사건을 어떻게 평가하는지를 해석한다.</p>
+<p>shared event / context
+      ↓
+┌─────┼─────┐
+M     A     G ...
+↓     ↓     ↓
+appraisal</p>
+<p>같은 사건도 Actor별로 다른 appraisal을 가질 수 있다.</p>
+<p>6.3 Logical Dependency vs Invocation Ordering</p>
+<p>CG 결과가 appraisal의 논리적 입력일 수 있다.</p>
+<p>CG → appraisal</p>
+<p>그러나 이는 반드시:</p>
+<p>LLM Call #1 → LLM Call #2</p>
+<p>를 의미하지 않는다.</p>
+<p>가능한 execution strategy는 열어 둔다.</p>
+<ul>
+<li>strict serialization</li>
+<li>overlapping computation</li>
+<li>speculative appraisal + re-evaluation</li>
+<li>joint single-call output</li>
+<li>shared interpretation + parallel actor appraisal</li>
+</ul>
+<p>의미론적 dependency와 물리적 execution ordering은 별개의 축이다.</p>
+<hr>
+<ol start="7">
+<li>Trigger Asymmetry</li>
+</ol>
+<p>Interpretation과 realization은 동일한 trigger model을 갖지 않는다.</p>
+<p>7.1 Interpretation</p>
+<p>공통 Room event가 trigger가 될 수 있다.</p>
+<p>NEW ROOM EVENT
+      ↓
+shared interpretation</p>
+<p>7.2 Actor Appraisal</p>
+<p>Actor-specific perception 또는 Actor-specific read event가 trigger가 될 수 있다.</p>
+<p>Actor observes / reads event
+        ↓
+Actor appraisal</p>
+<p>7.3 Realization</p>
+<p>Actor-local condition이 trigger가 된다.</p>
+<p>pressure &gt;= threshold
+        ↓
+realization</p>
+<p>따라서:</p>
+<p>«해석은 공통 트리거일 수 있고, 실현은 분산 트리거다.»</p>
+<p>이 비대칭성은 architecture의 의미론이며, invocation topology와 동일시하지 않는다.</p>
+<hr>
+<ol start="8">
+<li>Read / Unread</li>
+</ol>
+<p>메시지는 Actor별 read state를 가질 수 있다.</p>
+<p>Message #42</p>
+<p>Marilyn    unread
+Audrey     read
+Grace      read
+Elizabeth  unread</p>
+<p>따라서:</p>
+<p>«message exists ≠ actor has perceived message»</p>
+<p>를 구별할 수 있다.</p>
+<p>message published
+        ↓
+actor-specific unread state
+        ↓
+actor reads
+        ↓
+actor appraisal</p>
+<p>&quot;read&quot;는 appraisal의 중요한 distributed trigger가 될 수 있지만 유일한 trigger일 필요는 없다.</p>
+<hr>
+<ol start="9">
+<li>Event Granularity vs Computation Granularity</li>
+</ol>
+<p>하나의 semantic event가 하나의 LLM invocation을 강제하지 않는다.</p>
+<p>예:</p>
+<p>Message 41 → read
+Message 42 → read
+Message 43 → read</p>
+<p>가 반드시:</p>
+<p>Appraisal(41)
+Appraisal(42)
+Appraisal(43)</p>
+<p>이어야 하는 것은 아니다.</p>
+<p>다음과 같은 구현도 가능하다.</p>
+<p>read 41
+read 42
+read 43
+   ↓
+batched appraisal</p>
+<p>따라서 다음을 독립적으로 결정한다.</p>
+<ul>
+<li>event emission granularity</li>
+<li>state transition granularity</li>
+<li>cognitive invocation granularity</li>
+<li>LLM batching/debouncing/coalescing</li>
+</ul>
+<p>Batching은 semantic contract가 아니라 execution strategy다.</p>
+<hr>
+<ol start="10">
+<li>Pressure</li>
+</ol>
+<p>Pressure는 Actor-local dynamic state다.</p>
+<p>현재 구현에서도 캐릭터별 pressure, threshold, cooldown 등의 상태가 존재하며 scheduler가 이를 이용해 &quot;ScheduledTurn&quot;을 계산한다.</p>
+<p>Target에서는 pressure의 ownership을 Actor 쪽으로 명확히 이동한다.</p>
+<p>ActorState
+ ├─ pressure
+ └─ lastPressureUpdate</p>
+<p>10.1 Lazy Temporal Advancement</p>
+<p>시간에 따른 pressure 변화가 함수로 표현 가능하다면:</p>
+<h1>pressure(t1)</h1>
+<p>pressure(t0)
+ +
+accumulation(t0 → t1)</p>
+<p>처럼 현재 시점에서 advance할 수 있다.</p>
+<p>따라서 continuous tick을 요구하지 않는다.</p>
+<p>10.2 Scheduled Semantic Boundary</p>
+<p>threshold crossing이 의미 있는 사건이라면:</p>
+<p>current state
+      ↓
+next meaningful boundary
+      ↓
+scheduled activation</p>
+<p>으로 처리할 수 있다.</p>
+<p>따라서:</p>
+<p>«dynamic state simulation과 continuous polling은 별개의 문제다.»</p>
+<hr>
+<ol start="11">
+<li>Event-Driven Runtime</li>
+</ol>
+<p>Runtime은 continuous tick을 필수로 하지 않는다.</p>
+<p>예시 event:</p>
+<ul>
+<li>&quot;MessagePublished&quot;</li>
+<li>&quot;MessageRead&quot;</li>
+<li>&quot;RelationshipChanged&quot;</li>
+<li>&quot;AttentionChanged&quot;</li>
+<li>&quot;PressureThresholdReached&quot;</li>
+<li>&quot;CooldownExpired&quot;</li>
+<li>&quot;TemporalBoundaryReached&quot;</li>
+<li>&quot;ActorActionCommitted&quot;</li>
+</ul>
+<p>Event는 해당 Actor 또는 Room의 state transition과 cognitive work를 trigger할 수 있다.</p>
+<hr>
+<ol start="12">
+<li>Asynchronous Actor Execution</li>
+</ol>
+<p>각 Actor의 cognitive pipeline은 다른 Actor의 external latency 때문에 전체적으로 직렬화되지 않는다.</p>
+<p>Marilyn ───── realization ──────────────→</p>
+<p>Audrey  ── appraisal ───── realization ─→</p>
+<p>Grace   ────── realization ─────────────→</p>
+<pre><code>                     ↓
+                Room boundary
+</code></pre>
+<p>목표는:</p>
+<p>«LLM latency를 room-level latency가 아니라 actor-level latency로 국소화하는 것»</p>
+<p>이다.</p>
+<p>다만 Actor pipeline 내부에서 어느 stage를 overlap할지 여부는 별도의 execution policy다.</p>
+<hr>
+<ol start="13">
+<li>Realization as Action Proposal</li>
+</ol>
+<p>Realization은 shared world의 즉각적인 사실이 아니다.</p>
+<p>Actor state / world snapshot
+          ↓
+      realization
+          ↓
+     action proposal</p>
+<p>Realization 중 Room world가 변하는 것은 정상적이다.</p>
+<p>따라서:</p>
+<p>«Realization completion ≠ publication»</p>
+<p>이다.</p>
+<hr>
+<ol start="14">
+<li>Stale Realization</li>
+</ol>
+<p>예:</p>
+<p>t0
+A reads S0
+A starts realization</p>
+<pre><code>    ├── B commits event
+    ├── C changes shared state
+    └── Room becomes S3
+</code></pre>
+<p>t1
+A realization completes</p>
+<p>A의 결과는 자동으로 폐기되거나 자동으로 채택되지 않는다.</p>
+<p>완료 후 현재 world와의 관계를 판단한다.</p>
+<p>accept
+revalidate
+abandon
+retry / re-realize
+cancel</p>
+<p>중 하나가 될 수 있다.</p>
+<hr>
+<ol start="15">
+<li>Stale Detection vs Impact Assessment</li>
+</ol>
+<p>두 문제를 구분한다.</p>
+<p>Stale detection</p>
+<p>«내가 본 world가 현재와 달라졌는가?»</p>
+<p>예:</p>
+<p>sourceVersion = 41
+currentVersion = 42</p>
+<p>이는 비교적 저비용으로 판단할 수 있다.</p>
+<p>Impact assessment</p>
+<p>«그 변화가 내 realization을 실제로 무효화하는가?»</p>
+<p>예:</p>
+<p>E42 = unrelated small talk</p>
+<p>는 stale이지만 반드시 invalid하지 않다.</p>
+<p>반면:</p>
+<p>E42 = &quot;나 지금 집에 가야 해&quot;</p>
+<p>가 해당 realization의 전제와 직접 관련된다면 invalid할 수 있다.</p>
+<p>따라서:</p>
+<p>«stale ≠ invalid»</p>
+<p>이다.</p>
+<hr>
+<ol start="16">
+<li>Impact Assessment Cost</li>
+</ol>
+<p>Impact assessment 자체가 realization보다 무거운 정상 경로가 되어서는 안 된다.</p>
+<p>따라서 기본 경로는 가능한 한 inexpensive하게 유지한다.</p>
+<p>가능한 방법:</p>
+<ul>
+<li>version comparison</li>
+<li>causal dependency metadata</li>
+<li>action-specific invalidation rule</li>
+<li>event type / relevance metadata</li>
+<li>lightweight semantic predicate</li>
+</ul>
+<p>필요할 때만 보다 비싼 semantic assessment를 사용한다.</p>
+<p>그러나 특정 &quot;O(1)&quot; rule이나 특정 evaluator를 이 명세에서 강제하지 않는다.</p>
+<hr>
+<ol start="17">
+<li>Cancellation</li>
+</ol>
+<p>Staleness가 발생했다고 해서 반드시 진행 중 LLM computation을 취소하는 것은 아니다.</p>
+<p>world change
+   ↓
+impact assessment
+   ↓
+low impact → continue
+high impact → cancel / re-plan</p>
+<p>Cancellation은 최적화 policy다.</p>
+<p>가능한 mechanism:</p>
+<ul>
+<li>&quot;AbortSignal&quot;</li>
+<li>provider-native cancellation</li>
+<li>runtime-level cancellation</li>
+<li>no cancellation + completion-time validation</li>
+</ul>
+<p>따라서:</p>
+<p>«Stale handling은 필수지만 early cancellation은 선택적이다.»</p>
+<p>Cancellation policy 자체는 열린 축이다.</p>
+<hr>
+<ol start="18">
+<li>Causal Lineage</li>
+</ol>
+<p>Room의 canonical history는 단순한 total ordering 이상의 정보를 필요로 할 수 있다.</p>
+<p>E41
+ ↓
+A observed E41
+ ↓
+A realization R1
+ ↓
+B commits E42
+ ↓
+A commits E43</p>
+<p>단순한 chronological order는:</p>
+<p>E41 &lt; E42 &lt; E43</p>
+<p>이지만 이것은 E43이 E42를 인지했다는 뜻이 아니다.</p>
+<p>따라서:</p>
+<p>«Canonical ordering과 causal awareness를 동일시하지 않는다.»</p>
+<hr>
+<ol start="19">
+<li>Action Provenance</li>
+</ol>
+<p>Action proposal은 가능한 범위에서 다음 provenance를 가질 수 있다.</p>
+<p>ActionProposal
+├─ actor
+├─ sourceWorldVersion
+├─ observedEvents
+├─ causal dependencies
+└─ generated action</p>
+<p>이를 통해:</p>
+<p>«이 행동은 어떤 세계를 보고 생성되었는가?»</p>
+<p>를 복원할 수 있다.</p>
+<hr>
+<ol start="20">
+<li>No Retroactive Causality</li>
+</ol>
+<p>다음 상황은 허용된다.</p>
+<p>E1 published
+A observes E1
+A starts realization</p>
+<p>E2 published</p>
+<p>A commits action derived from E1</p>
+<p>A가 E2를 인지하지 않았다는 사실은 유지되어야 한다.</p>
+<p>따라서:</p>
+<p>«Later commit order alone must not imply earlier cognitive awareness.»</p>
+<p>이를 history representation과 downstream interpretation이 보존해야 한다.</p>
+<p>&quot;In-Reply-To&quot;는 하나의 구현 수단일 수 있지만 architectural invariant 자체는 아니다.</p>
+<hr>
+<ol start="21">
+<li>Concurrent State Transitions</li>
+</ol>
+<p>동시성을 전면적으로 금지하지 않는다.</p>
+<p>21.1 Independent mutations</p>
+<p>A → message A
+B → message B</p>
+<p>둘 다 authoritative history에 들어갈 수 있다.</p>
+<p>21.2 Conflicting mutations</p>
+<p>S0
+ ├─ A: relationship = 0.7
+ └─ B: relationship = 0.4</p>
+<p>동일한 shared variable에 incompatible mutation이 들어오면 resolution이 필요하다.</p>
+<p>핵심 원칙:</p>
+<p>«독립적인 state transition은 concurrent할 수 있다. Conflicting transition은 하나의 일관된 결과로 resolve되어야 한다.»</p>
+<hr>
+<ol start="22">
+<li>Conflict Semantics</li>
+</ol>
+<p>가능한 전략:</p>
+<ul>
+<li>serialization</li>
+<li>optimistic concurrency + retry</li>
+<li>merge</li>
+<li>semantic delta</li>
+<li>domain-specific resolution</li>
+</ul>
+<p>그러나 특정 전략을 선결하지 않는다.</p>
+<p>특히:</p>
+<p>«CRDT를 기본 모델로 채택하지 않는다.»</p>
+<p>Semantic delta는 mutation representation으로 유용할 수 있지만, 모든 Dantok state transition이 commutative하다고 가정하지 않는다.</p>
+<p>Relationship이나 Common Ground와 같이 순서와 causal context가 의미의 일부인 state가 있을 수 있다.</p>
+<hr>
+<ol start="23">
+<li>Event Fan-out</li>
+</ol>
+<p>Actor autonomy는 하나의 Room event가 여러 Actor에게 관찰될 수 있음을 뜻한다.</p>
+<p>Room Event
+   │
+   ├── Actor A
+   ├── Actor B
+   ├── Actor C
+   └── Actor D</p>
+<p>그러나:</p>
+<p>«Event fan-out ≠ cognitive fan-out»</p>
+<p>이다.</p>
+<p>모든 Actor가 모든 event에 대해 expensive appraisal을 수행할 필요는 없다.</p>
+<hr>
+<ol start="24">
+<li>Activation Gate</li>
+</ol>
+<p>Appraisal 이전에 inexpensive eligibility filtering을 둘 수 있다.</p>
+<p>Room Event
+     ↓
+Actor eligibility
+     ↓
+┌────┴────┐
+skip     activate
+           ↓
+       appraisal</p>
+<p>가능한 filter:</p>
+<ul>
+<li>visibility</li>
+<li>read state</li>
+<li>attention</li>
+<li>event type</li>
+<li>actor participation</li>
+<li>cooldown</li>
+<li>relevance metadata</li>
+</ul>
+<p>Gate가 반드시 Room에 위치해야 하는 것은 아니다.</p>
+<p>가능한 위치:</p>
+<p>Room
+Actor
+shared event router</p>
+<p>중 하나다.</p>
+<hr>
+<ol start="25">
+<li>Fan-out and Deployment</li>
+</ol>
+<p>Actor fan-out은 domain semantics이고, serverless activation fan-out은 execution/deployment semantics다.</p>
+<p>Resident runtime:</p>
+<p>1 event
+→ N in-memory notifications</p>
+<p>Stateful serverless:</p>
+<p>1 event
+→ N activations</p>
+<p>따라서 serverless에서 activation 비용이 커진다고 해서 Actor architecture 자체를 centralized scheduler로 되돌릴 이유는 없다.</p>
+<p>Deployment layer에서는 다음을 선택할 수 있다.</p>
+<ul>
+<li>event filtering</li>
+<li>batching</li>
+<li>co-location</li>
+<li>lazy activation</li>
+<li>shared preprocessing</li>
+<li>activation throttling</li>
+</ul>
+<hr>
+<ol start="26">
+<li>Common Ground Dependency</li>
+</ol>
+<p>CG와 Appraisal 사이의 semantic dependency가 강한 경우에는 strict ordering이 필요할 수 있다.</p>
+<p>예:</p>
+<p>E42
+ ↓
+CG interpretation
+ ↓
+&quot;X is known to be guilty&quot;
+ ↓
+Actor appraisal</p>
+<p>이를 위해 다음 execution modes를 허용한다.</p>
+<p>Strict</p>
+<p>E
+↓
+CG
+↓
+Appraisal</p>
+<p>Speculative</p>
+<pre><code>   ┌→ CG ───────┐
+</code></pre>
+<p>E ─────┤             ↓
+       └→ appraisal → reconcile</p>
+<p>Joint</p>
+<p>E
+↓
+single cognitive invocation
+↓
+CG + appraisal</p>
+<p>어떤 방식을 택할지는 execution policy다.</p>
+<hr>
+<ol start="27">
+<li>Speculative Cognition</li>
+</ol>
+<p>Speculative appraisal을 사용하는 경우 speculative result는 authoritative state가 아니다.</p>
+<p>speculative appraisal
+       ↓
+CG result available
+       ↓
+validate
+       ↓
+accept / discard / recompute</p>
+<p>따라서:</p>
+<p>«Speculative cognition never directly establishes authoritative world state.»</p>
+<hr>
+<ol start="28">
+<li>Shared World vs Actor State</li>
+</ol>
+<p>Room state</p>
+<p>공유 현실이다.</p>
+<p>messages
+canonical event history
+shared knowledge
+room-wide relationships
+world facts</p>
+<p>Actor state</p>
+<p>특정 Actor가 가진 관점과 내부 상태다.</p>
+<p>pressure
+attention
+read/unread
+appraisal
+memory
+intent
+in-flight cognition</p>
+<p>핵심 원칙:</p>
+<p>«Actor state는 agency를 나타내고, Room state는 shared reality를 나타낸다.»</p>
+<hr>
+<ol start="29">
+<li>Event History</li>
+</ol>
+<p>Room은 canonical event history를 가진다.</p>
+<p>Actor는 그 history를 독립적인 perception timing으로 처리할 수 있다.</p>
+<p>Room history:
+E1 → E2 → E3 → E4</p>
+<p>Marilyn:
+E1 → E2 → E4</p>
+<p>Audrey:
+E1 → E2 → E3 → E4</p>
+<p>따라서 Room의 canonical ordering과 Actor의 perception timing은 동일한 개념이 아니다.</p>
+<hr>
+<ol start="30">
+<li>Time and Simulation</li>
+</ol>
+<p>시간은 세 가지 방식으로 사용한다.</p>
+<p>Event time</p>
+<p>message published
+      ↓
+actor reacts</p>
+<p>Elapsed time</p>
+<p>pressure(t)
+attention(t)
+relationship decay(t)</p>
+<p>Scheduled semantic boundary</p>
+<p>threshold crossing
+cooldown expiry
+attention deadline</p>
+<p>세 방식 모두 continuous computation을 요구하지 않는다.</p>
+<hr>
+<ol start="31">
+<li>Latency Semantics</li>
+</ol>
+<p>비동기 구조에서 provider latency는 개별 Actor의 behavior process에 속한다.</p>
+<p>A starts realization ─────────────→ 12s
+B starts realization ───→ 4s</p>
+<p>그러나:</p>
+<p>«completion order ≠ social importance ≠ authoritative event order»</p>
+<p>이다.</p>
+<p>빠른 Actor가 반드시 사회적으로 우선하는 것도 아니고, 느린 Actor가 반드시 행동 기회를 잃는 것도 아니다.</p>
+<hr>
+<ol start="32">
+<li>Latency Fairness</li>
+</ol>
+<p>Provider latency가 social dynamics를 왜곡하는지는 관측 대상이다.</p>
+<p>가능한 향후 policy:</p>
+<ul>
+<li>pressure adjustment</li>
+<li>cooldown</li>
+<li>simulated response delay</li>
+<li>priority policy</li>
+<li>starvation prevention</li>
+</ul>
+<p>그러나 현재 specification은 이를 강제하지 않는다.</p>
+<p>«Latency fairness는 검증 대상이지, 선결된 보정 규칙이 아니다.»</p>
+<hr>
+<ol start="33">
+<li>Dynamic Simulation vs Tick</li>
+</ol>
+<p>동적 state를 유지하기 위해 반드시 resident tick loop를 사용할 필요는 없다.</p>
+<p>가능한 구성:</p>
+<p>persistent state
++
+last-updated timestamp
++
+state transition function
++
+meaningful activation</p>
+<p>따라서 stateful serverless에서도 dynamic cognitive simulation이 가능하다.</p>
+<p>다만 매우 높은 주파수의 물리/수치 simulation과 같이 매 순간 계산이 의미 자체인 workload라면 resident/tick execution이 더 적합할 수 있다.</p>
+<hr>
+<ol start="34">
+<li>Persistence Model</li>
+</ol>
+<p>Room state와 Actor state는 논리적으로 구별하지만 반드시 별도의 physical datastore를 사용해야 하는 것은 아니다.</p>
+<p>가능한 구조:</p>
+<p>single durable store
+     ├─ Room state
+     └─ Actor state</p>
+<p>또는:</p>
+<p>Room store
+Actor store</p>
+<p>즉 &quot;dual persistence&quot;는 architectural requirement가 아니라 implementation topology다.</p>
+<hr>
+<ol start="35">
+<li>Actor State Recovery</li>
+</ol>
+<p>핵심 invariant:</p>
+<p>«Actor state는 필요한 범위에서 canonical Room history와 Character configuration으로 복구 가능해야 한다.»</p>
+<p>Room history
+     ↓
+Actor reconstruction
+     ↓
+derived Actor state</p>
+<p>이는 모든 Actor state를 완전한 event-sourced projection으로 구현해야 한다는 뜻은 아니다.</p>
+<p>중요한 것은:</p>
+<p>«Room history가 Actor transient state보다 높은 authority를 가진다.»</p>
+<hr>
+<ol start="36">
+<li>Durable Semantic State vs Execution State</li>
+</ol>
+<p>Actor state는 두 종류로 구분할 수 있다.</p>
+<p>Durable semantic state</p>
+<p>잃어버리면 안 되는 상태.</p>
+<p>예:</p>
+<ul>
+<li>read cursor</li>
+<li>durable memory</li>
+<li>actor-owned relationship state</li>
+<li>persistent configuration</li>
+</ul>
+<p>Reconstructible execution state</p>
+<p>잃어버려도 복구 가능한 상태.</p>
+<p>예:</p>
+<ul>
+<li>in-flight realization</li>
+<li>temporary appraisal</li>
+<li>activation marker</li>
+<li>transient cache</li>
+</ul>
+<p>따라서 crash 후:</p>
+<p>Room committed E42
+Actor crashed
+        ↓
+recover
+        ↓
+reconstruct Actor state
+        ↓
+resume / discard stale work</p>
+<p>가 가능해야 한다.</p>
+<hr>
+<ol start="37">
+<li>Commit / Actor State Ordering</li>
+</ol>
+<p>Room commit은 Actor의 별도 post-commit persistence 성공에 의존해서는 안 된다.</p>
+<p>권장 logical flow:</p>
+<p>Actor proposal
+     ↓
+Room commit
+     ↓
+canonical event
+     ↓
+Actor observes own committed event
+     ↓
+Actor state projection advances</p>
+<p>Actor persistence가 실패하면 committed event가 취소되는 것이 아니라 Actor projection이 뒤처진 것으로 취급한다.</p>
+<p>이후 recovery:</p>
+<p>canonical history
+      ↓
+missing projection
+      ↓
+rebuild</p>
+<p>한다.</p>
+<p>따라서 2PC를 요구하지 않는다.</p>
+<hr>
+<ol start="38">
+<li>Duplicate Action Prevention</li>
+</ol>
+<p>비동기 runtime에서 다음 failure를 고려한다.</p>
+<p>proposal submitted
+Room commits
+Actor crashes before recording completion
+Actor restarts
+Actor submits same proposal again</p>
+<p>따라서 action proposal은 idempotency identity를 가질 수 있다.</p>
+<p>ActionProposal
+├─ actorId
+├─ proposalId
+└─ sourceWorldVersion</p>
+<p>Room은 이미 처리된 logical proposal의 중복 commit을 방지해야 한다.</p>
+<hr>
+<ol start="39">
+<li>Self-Healing</li>
+</ol>
+<p>핵심 recovery invariant:</p>
+<p>«재기동 후 Actor state는 canonical Room history와 eventual consistency를 이뤄야 한다.»</p>
+<p>동일한:</p>
+<ul>
+<li>Room history</li>
+<li>Character configuration</li>
+<li>deterministic state transition rules</li>
+</ul>
+<p>가 주어지면 필요한 Actor state를 재구성할 수 있어야 한다.</p>
+<p>LLM의 비결정적인 결과는 무조건 replay하는 대상이 아니다. 필요한 경우 결과 또는 그 결과가 생성한 committed event를 persistence boundary에 보존한다.</p>
+<hr>
+<ol start="40">
+<li>Failure Model</li>
+</ol>
+<p>다음 failure는 정상적으로 발생할 수 있는 것으로 취급한다.</p>
+<ul>
+<li>LLM timeout</li>
+<li>provider failure</li>
+<li>Actor process termination</li>
+<li>serverless activation termination</li>
+<li>duplicate delivery</li>
+<li>delayed event</li>
+<li>stale realization</li>
+<li>lost transient cognition</li>
+<li>persistence failure</li>
+<li>retry</li>
+</ul>
+<p>따라서:</p>
+<p>«실행 중인 computation의 생존을 세계 상태의 유일한 근거로 삼지 않는다.»</p>
+<p>Canonical world state는 committed state/event로 정의한다.</p>
+<hr>
+<ol start="41">
+<li>Runtime Lifecycle</li>
+</ol>
+<p>41.1 Resident Runtime</p>
+<p>Actor execution context가 계속 존재할 수 있다.</p>
+<p>Room
+├─ Actor A — idle
+├─ Actor B — working
+├─ Actor C — idle
+└─ Actor D — idle</p>
+<p>이벤트가 오면 resident Actor가 wake/resume한다.</p>
+<p>여기서 &quot;wake&quot;는 이미 존재하는 execution context의 재개를 의미한다.</p>
+<p>41.2 Stateful Serverless Runtime</p>
+<p>Logical state는 지속하지만 execution context는 필요에 따라 activation될 수 있다.</p>
+<p>durable Room / Actor state
+        ↓
+event
+        ↓
+actor activation
+        ↓
+state load / reconstruction
+        ↓
+cognitive work
+        ↓
+commit
+        ↓
+execution suspends / ends</p>
+<p>여기서는 &quot;activation&quot;을 주 용어로 사용한다.</p>
+<hr>
+<ol start="42">
+<li>Stateful Serverless</li>
+</ol>
+<p>Stateful serverless는 architecture의 정의가 아니라 deployment/execution model이다.</p>
+<p>핵심 특성은:</p>
+<p>«persistent logical state without persistent compute»</p>
+<p>이다.</p>
+<p>따라서:</p>
+<p>logical Room / Actor
+        ↓
+durable state
+        ↓
+event
+        ↓
+compute activation
+        ↓
+state transition</p>
+<p>이 가능하다면 Dantok의 Actor architecture를 stateful serverless 위에 구현할 수 있다.</p>
+<p>Resident runtime과 비교할 때 판단 기준:</p>
+<ul>
+<li>execution lifetime</li>
+<li>async work semantics</li>
+<li>timer / scheduled activation</li>
+<li>state durability</li>
+<li>concurrency guarantees</li>
+<li>activation cost</li>
+<li>operational constraints</li>
+</ul>
+<p>이다.</p>
+<hr>
+<ol start="43">
+<li>Runtime Portability</li>
+</ol>
+<p>Core runtime semantics는 특정 cloud provider에 종속되지 않는다.</p>
+<pre><code>         Core Actor Runtime
+                 │
+    ┌────────────┼────────────┐
+    ↓            ↓            ↓
+</code></pre>
+<p> Stateful          Resident     Local / VM
+ Serverless        Runtime      Runtime</p>
+<p>Cloudflare Workers / Durable Objects 같은 stateful serverless platform은 하나의 implementation target일 뿐이다.</p>
+<p>Domain/runtime code는 가능한 한 platform-specific API와 분리한다.</p>
+<hr>
+<ol start="44">
+<li>Current → Target Responsibility Shift</li>
+</ol>
+<p>Current implementation| Target architecture
+Room이 speaker를 선택| Actor가 action eligibility를 판단
+중앙 pressure update| Actor-local pressure
+global generation slot| actor-local in-flight realization
+global single-flight| actor별 independent flight
+interpretation → next scheduling| interpretation → actor state
+realization → central publication| realization → action proposal
+Room이 next turn 예약| actor-local triggers
+commit 후 next turn| commit 후 event propagation
+sequential generation| concurrent generation 가능
+Room-centric character| Character-as-Actor
+process-local live state 중심| logical state와 execution lifecycle 분리</p>
+<p>현재의 &quot;scheduleNextTurn()&quot;과 &quot;commitScheduledTurn()&quot;은 현재 runtime의 권위적 계약이다. Target은 이를 단순한 async loop로 교체하는 것이 아니라 behavioral agency의 ownership을 바꾸는 것이다.</p>
+<hr>
+<ol start="45">
+<li>Core Invariants</li>
+</ol>
+<p>I1. World Authority</p>
+<p>Room만 authoritative shared-world state를 확정한다.</p>
+<p>I2. Actor Autonomy</p>
+<p>Actor는 자신의 cognitive state와 행동 여부를 독립적으로 결정한다.</p>
+<p>I3. No Direct Actor Mutation</p>
+<p>Actor는 다른 Actor의 내부 상태나 authoritative Room state를 직접 mutation하지 않는다.</p>
+<p>I4. Concurrent Cognition</p>
+<p>Actor cognitive pipelines는 서로의 external latency 때문에 전역적으로 직렬화되지 않는다.</p>
+<p>I5. Commit Consistency</p>
+<p>Concurrent action requests는 하나의 일관된 authoritative world history로 수렴한다.</p>
+<p>I6. Temporal Continuity</p>
+<p>Actor state는 execution inactivity와 무관하게 시간 모델상 연속성을 가진다.</p>
+<p>I7. Lazy Temporal Computation</p>
+<p>시간의 경과를 표현하기 위해 매 순간 computation을 수행할 필요는 없다.</p>
+<p>I8. Stale Realization Safety</p>
+<p>Realization은 시작 당시 world state를 바탕으로 만들어진 action proposal이며 완료 시점 world와의 관계를 재평가할 수 있어야 한다.</p>
+<p>I9. Invocation Independence</p>
+<p>Semantic cognitive stages와 LLM invocation topology는 별개의 설계축이다.</p>
+<p>I10. Trigger Independence</p>
+<p>Shared interpretation, Actor appraisal, pressure update 및 realization은 동일한 trigger model을 공유할 필요가 없다.</p>
+<p>I11. Event / Computation Separation</p>
+<p>Event의 semantic granularity와 실제 computation invocation granularity는 동일할 필요가 없다.</p>
+<p>I12. Agency / Authority Separation</p>
+<p>Agency는 Actor에 분산되고 authority는 Room에 집중된다.</p>
+<p>I13. Conflict Specificity</p>
+<p>Conflict resolution은 state semantics에 따라 결정하며 모든 state transition이 commutative하다고 가정하지 않는다.</p>
+<p>I14. Latency Locality</p>
+<p>External provider latency가 불필요하게 Room 전체의 cognitive progress를 block하지 않아야 한다.</p>
+<p>I15. Causal Provenance</p>
+<p>Action은 가능한 범위에서 자신이 관찰한 world state와 causal dependency를 식별할 수 있어야 한다.</p>
+<p>I16. No Retroactive Causality</p>
+<p>Commit order만으로 Actor가 이후 event를 인지했다고 추론하지 않는다.</p>
+<p>I17. Speculative Non-Authority</p>
+<p>Speculative cognition은 authoritative state transition을 직접 확정하지 않는다.</p>
+<p>I18. Recoverability</p>
+<p>Actor state는 canonical Room history와 Character configuration을 통해 필요한 범위에서 복구 가능해야 한다.</p>
+<p>I19. Idempotent Commit</p>
+<p>동일한 logical action의 retry가 중복 world transition을 생성하지 않아야 한다.</p>
+<p>I20. Projection Independence</p>
+<p>Room commit은 Actor post-commit persistence의 성공 여부와 독립적이어야 한다.</p>
+<p>I21. Fan-out Containment</p>
+<p>모든 Room event가 모든 Actor의 expensive cognitive computation을 요구해서는 안 된다.</p>
+<p>I22. Assessment Boundedness</p>
+<p>Stale handling을 위한 meta-assessment가 정상 realization보다 더 큰 computational burden이 되는 구조를 기본 경로로 삼지 않는다.</p>
+<hr>
+<ol start="46">
+<li>Open Axes</li>
+</ol>
+<p>다음 문제는 의도적으로 선결하지 않는다.</p>
+<p>축| 열린 선택지
+CG / appraisal 호출| single / separate
+CG → appraisal execution| serial / speculative / joint
+Actor appraisal| parallel / bounded parallel / batched
+appraisal batching| none / debounce / batch
+stale detection| version / causal metadata / other
+impact assessment| rule / metadata / semantic
+cancellation| none / heuristic / semantic
+action provenance| event IDs / dependency graph / reply relation
+conflict resolution| serialize / merge / semantic resolution
+mutation representation| state set / semantic delta / domain action
+event fan-out| direct / filtered / batched
+persistence topology| single store / separated stores
+actor recovery| replay / snapshot + replay / hybrid
+latency policy| natural / compensated / fairness policy
+runtime lifecycle| resident / stateful serverless / hybrid</p>
+<p>각 축은 다른 축의 결론을 자동으로 결정하지 않는다.</p>
+<hr>
+<ol start="47">
+<li>Architectural Tensions to Measure</li>
+</ol>
+<p>Open axis는 무관심한 미결 상태가 아니라 검증해야 할 질문이다.</p>
+<p>T1. Stale Cost</p>
+<p>비동기 realization이 얼마나 자주 stale되는가?</p>
+<p>T2. Causal Quality</p>
+<p>Chronological ordering만으로 actor behavior의 causal coherence가 충분한가?</p>
+<p>T3. Fan-out Cost</p>
+<p>Event 하나당 실제 appraisal invocation이 몇 개 발생하는가?</p>
+<p>T4. CG Dependency</p>
+<p>CG 결과를 기다리지 않고 실행한 speculative appraisal이 얼마나 자주 invalidated되는가?</p>
+<p>T5. Recovery Cost</p>
+<p>Actor projection을 history에서 재구성하는 비용은 어느 정도인가?</p>
+<p>T6. Latency Fairness</p>
+<p>Provider latency가 실제 발화 분포를 왜곡하는가?</p>
+<p>이 질문들은 architecture를 바꾸기 전에 관측하고 측정할 대상이다.</p>
+<hr>
+<ol start="48">
+<li>Design Principles</li>
+</ol>
+<p>이 architecture의 핵심 설계 원칙은 다음과 같다.</p>
+<p>48.1 Separate semantics from execution</p>
+<p>«의미론적 stage와 실제 invocation을 분리한다.»</p>
+<p>48.2 Separate agency from authority</p>
+<p>«Actor가 행동을 제안하고 Room이 세계를 확정한다.»</p>
+<p>48.3 Separate chronology from causality</p>
+<p>«event order와 actor awareness를 동일시하지 않는다.»</p>
+<p>48.4 Separate event fan-out from computation fan-out</p>
+<p>«하나의 event가 여러 Actor에게 보인다고 해서 반드시 여러 expensive computation이 필요하지는 않다.»</p>
+<p>48.5 Separate stale detection from invalidation</p>
+<p>«version mismatch가 곧 semantic invalidity는 아니다.»</p>
+<p>48.6 Separate logical persistence from execution residency</p>
+<p>«logical Actor/Room이 지속된다고 해서 process가 반드시 상주해야 하는 것은 아니다.»</p>
+<p>48.7 Separate failure recovery from transaction coupling</p>
+<p>«Actor persistence와 Room commit을 하나의 distributed transaction으로 묶지 않고 canonical Room state에서 projection을 복구할 수 있다.»</p>
+<p>48.8 Do not conflate open axes</p>
+<p>«한 축의 선택이 다른 축의 선택을 자동으로 결정한다고 가정하지 않는다.»</p>
+<hr>
+<ol start="49">
+<li>Target Runtime Definition</li>
+</ol>
+<p>«Dantok Runtime은 지속적인 Room과 Character-Actor state를 보유하고, 사건과 의미 있는 시간 경계를 통해 개별 Actor의 인지 pipeline을 독립적으로 활성화하며, 그 결과를 하나의 authoritative Room history로 수렴시키는 stateful, event-driven, actor-oriented runtime이다.»</p>
+<p>보다 압축하면:</p>
+<p>«Distributed agency, centralized world authority, concurrent cognition, explicit causality, recoverable reality.»</p>
+<p>한국어로:</p>
+<p>«행동의 agency는 분산하고, 세계의 권위는 중앙화하며, 인지는 병렬화할 수 있지만, 인과관계는 보존하고, 확정된 현실은 항상 복구 가능하게 한다.»</p>
+<hr>
+<ol start="50">
+<li>Relationship to Current Architecture</li>
+</ol>
+<p>현재 구현은 잘못된 구현으로 규정하지 않는다.</p>
+<p>현재 구조는:</p>
+<p>Room
+ ↓
+pressure / scheduling
+ ↓
+speaker selection
+ ↓
+generation
+ ↓
+settlement
+ ↓
+commit
+ ↓
+next turn</p>
+<p>이라는 structure-centered approximation으로서 일관성을 가진다.</p>
+<p>Target은 이를:</p>
+<p>Room / World
+      │
+      ├── Actor A
+      ├── Actor B
+      ├── Actor C
+      └── Actor D
+             │
+       independent cognition
+             │
+       action proposals
+             │
+             ▼
+       authoritative Room</p>
+<p>이라는 agency-centered approximation으로 확장한다.</p>
+<p>따라서 Target adoption은 단순한 performance refactor가 아니라 Dantok이 Character agency를 어느 수준까지 simulation semantics로 채택할 것인가에 대한 architectural decision이다.</p>
+<hr>
+<ol start="51">
+<li>Final Architectural Principle</li>
+</ol>
+<p>«The Room is the world, not the puppeteer.
+The Actor is the agent, not the world.
+Cognition may proceed concurrently.
+Reality is established authoritatively.
+Causality is preserved explicitly.
+Execution may disappear; state may not.»</p>
+
+</article>
+</main>
+<footer class="site-footer">
+<p>&copy; mohokoto</p>
+</footer>
+</body>
+</html>
