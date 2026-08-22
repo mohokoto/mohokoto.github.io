@@ -10,7 +10,7 @@
      republishes; "updated" here = most recent (re)publish - NOT the
      Draft's own updated field (last save), a different concept. -->
 <meta name="date" content="2026-08-21T08:15:16.076Z">
-<meta name="updated" content="2026-08-22T15:07:29.804Z">
+<meta name="updated" content="2026-08-22T16:04:55.779Z">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@
 <article>
 <a class="back-link" href="/notes/">&larr; Notes</a>
 <h1>Dantok Stateful Event-Driven Actor Runtime</h1>
-<p class="byline"><time datetime="2026-08-21T08:15:16.076Z">2026년 8월 21일</time> &middot; Updated <time datetime="2026-08-22T15:07:29.804Z">2026년 8월 22일</time></p>
+<p class="byline"><time datetime="2026-08-21T08:15:16.076Z">2026년 8월 21일</time> &middot; Updated <time datetime="2026-08-22T16:04:55.779Z">2026년 8월 22일</time></p>
 <p>Dantok Stateful Event-Driven Actor Runtime</p>
 <ol>
 <li>Purpose</li>
@@ -1426,6 +1426,186 @@ Room world authority</p>
 <p>A.13 Refined Architectural Boundary</p>
 <p>The architecture can therefore be summarized more precisely as:</p>
 <p>«Room owns reality. Actor owns agency and Actor-local state. Shared-world interpretation may propose knowledge without acquiring world authority. Runtime infrastructure may activate and persist computation without acquiring behavioral authority. Canonical history and observation provenance preserve causality. Execution may disappear; semantically necessary state must remain durable or reconstructible.»</p>
+<hr>
+<p>Appendix B — Long-Lived History, Semantic State, and Execution Recovery Clarifications</p>
+<p>This appendix addresses two implementation concerns that become increasingly important in long-lived Dantok rooms:</p>
+<ul>
+<li>preserving causal and observation provenance across history compaction;</li>
+<li>distinguishing semantically necessary Actor state from transient cognition and execution state.</li>
+</ul>
+<p>It does not alter the Core Invariants or close the execution Open Axes.</p>
+<p>B.1 Long-Lived History and Compaction</p>
+<p>A permanent Room cannot assume that the complete canonical event history will remain in an immediately available working context forever.</p>
+<p>Long-lived execution may therefore require:</p>
+<ul>
+<li>snapshots,</li>
+<li>history compaction,</li>
+<li>summarized historical context,</li>
+<li>archival storage,</li>
+<li>or other equivalent representations.</li>
+</ul>
+<p>Compaction must not destroy the semantic information required by the architecture.</p>
+<p>In particular, compaction must preserve, directly or through a reconstructible representation:</p>
+<ul>
+<li>canonical event identity,</li>
+<li>canonical ordering or version,</li>
+<li>Actor observation boundaries where required,</li>
+<li>causal provenance required by I15 and I16,</li>
+<li>provenance needed for stale-realization analysis,</li>
+<li>information required to reconstruct durable or reconstructible Actor state.</li>
+</ul>
+<p>Thus:</p>
+<p>«Compaction may change representation, but must not change semantic history.»</p>
+<p>A compacted representation is therefore not a replacement history with different semantics. It is another representation of the same authoritative history, with sufficient provenance preserved for the relevant invariants.</p>
+<p>B.2 Observation Provenance Across Compaction</p>
+<p>An Actor&#39;s observation boundary must remain meaningful after older history has been compacted.</p>
+<p>For example:</p>
+<p>Original history:</p>
+<p>E1 → E2 → E3 → E4 → ... → E1000</p>
+<p>Actor A observed:
+E1, E2, E4, E5, ... E97</p>
+<p>After compaction, the runtime may replace the older portion with a snapshot or summarized segment.</p>
+<p>That representation may be:</p>
+<p>Snapshot S0
+    +
+retained events E98 ... E1000</p>
+<p>without requiring the original event objects to remain in active memory.</p>
+<p>What must remain recoverable is the semantic fact that Actor A&#39;s observation boundary did not retroactively advance beyond what A actually perceived.</p>
+<p>Therefore a compacted representation may preserve provenance through:</p>
+<ul>
+<li>event-ID ranges,</li>
+<li>observation cursors,</li>
+<li>causal summaries,</li>
+<li>snapshot metadata,</li>
+<li>retained provenance indexes,</li>
+<li>or equivalent mechanisms.</li>
+</ul>
+<p>The concrete representation remains an implementation choice.</p>
+<p>B.3 Compaction and No Retroactive Causality</p>
+<p>Compaction must not introduce awareness that did not exist in the original runtime history.</p>
+<p>In particular:</p>
+<p>«A later snapshot must not imply that an Actor observed all events incorporated into that snapshot.»</p>
+<p>A snapshot may summarize the Room&#39;s canonical reality while remaining silent about which parts of that reality an Actor had perceived.</p>
+<p>Therefore:</p>
+<p>canonical snapshot
+        ≠
+Actor perception snapshot</p>
+<p>unless the implementation explicitly records that equivalence.</p>
+<p>This preserves I16 even when the underlying representation no longer contains every historical event individually.</p>
+<p>B.4 Semantic State vs Execution State</p>
+<p>The distinction between durable semantic state and transient execution state is based on meaning, not on whether an LLM was involved.</p>
+<p>An LLM call does not automatically make its result transient or durable.</p>
+<p>Instead, ask:</p>
+<p>«Would losing this state change the future semantic behavior of the Actor, and can that state be reconstructed from authoritative durable inputs?»</p>
+<p>If the answer is:</p>
+<ul>
+<li>yes, and reconstruction is not sufficient → durable semantic state;</li>
+<li>yes, but deterministic reconstruction is sufficient → derived semantic state;</li>
+<li>no, because it represents only an unfinished computation → transient execution state.</li>
+</ul>
+<p>This classification applies equally to:</p>
+<ul>
+<li>appraisal results,</li>
+<li>pressure changes,</li>
+<li>attention changes,</li>
+<li>read progression,</li>
+<li>memory updates,</li>
+<li>realization state,</li>
+<li>provider request state.</li>
+</ul>
+<p>B.5 Appraisal Without Action</p>
+<p>An appraisal may change Actor state without producing a Room action.</p>
+<p>For example:</p>
+<p>E42 observed
+    ↓
+Actor appraisal
+    ↓
+pressure +0.08
+attention unchanged
+memory updated
+no ActionProposal</p>
+<p>The absence of a Room commit does not determine the persistence classification.</p>
+<p>The resulting changes must be treated according to their semantic role:</p>
+<p>semantic Actor state
+        ↓
+durable or reconstructible</p>
+<p>execution-only cognition
+        ↓
+discardable / recoverable</p>
+<p>Therefore:</p>
+<p>«No Room action does not imply no semantic state transition.»</p>
+<p>B.6 LLM Nondeterminism and Recovery</p>
+<p>Recoverability does not require replaying every past LLM invocation and reproducing its exact output.</p>
+<p>LLM outputs may be nondeterministic.</p>
+<p>The recovery requirement is instead:</p>
+<p>«After execution loss, the Actor must recover the semantically necessary state that determines future behavior.»</p>
+<p>This may be achieved by:</p>
+<ul>
+<li>persisting the relevant state transition,</li>
+<li>persisting the result that established durable semantic state,</li>
+<li>recording an authoritative Room event when appropriate,</li>
+<li>reconstructing derived state from durable inputs,</li>
+<li>or another equivalent mechanism.</li>
+</ul>
+<p>A prior LLM invocation is therefore not itself the persistence boundary.</p>
+<p>The persistence boundary is the semantic state that must survive.</p>
+<p>B.7 Relation to Room Commit</p>
+<p>Room commit and Actor-state persistence remain separate concerns.</p>
+<p>A Room commit establishes an authoritative shared-world transition.</p>
+<p>An Actor-local semantic transition may occur:</p>
+<ul>
+<li>before a Room action,</li>
+<li>after a Room action,</li>
+<li>without any Room action,</li>
+<li>or as a projection derived from canonical history.</li>
+</ul>
+<p>Therefore:</p>
+<p>Room commit
+    ≠
+Actor semantic persistence
+    ≠
+in-flight cognitive execution</p>
+<p>A failure of one does not automatically imply that the others must be rolled back.</p>
+<p>Recovery instead reconstructs the missing Actor projection from the canonical and durable inputs available to it.</p>
+<p>This preserves I20 Projection Independence and avoids requiring a distributed transaction between Room authority and Actor execution.</p>
+<p>B.8 Proposal Identity and Lost Execution</p>
+<p>If a transient execution attempt is lost after producing a logical action that may be retried, the retry must remain distinguishable from a genuinely new logical action.</p>
+<p>Therefore the logical identity of the action must not depend solely on the lifetime of the provider request or process that generated it.</p>
+<p>The exact identity mechanism remains open.</p>
+<p>The invariant is:</p>
+<p>«Execution loss must not make an existing logical action indistinguishable from a new logical action.»</p>
+<p>This is the recovery-side counterpart of I19 Idempotent Commit.</p>
+<p>B.9 Compaction, Recovery, and Open Axes</p>
+<p>History compaction does not require one specific event-sourcing implementation.</p>
+<p>The architecture remains compatible with:</p>
+<ul>
+<li>full history,</li>
+<li>snapshot plus replay,</li>
+<li>hybrid snapshots,</li>
+<li>summarized historical segments,</li>
+<li>archived provenance,</li>
+<li>other equivalent representations.</li>
+</ul>
+<p>Likewise, Actor recovery does not require all Actor state to be event-sourced.</p>
+<p>The required property is semantic:</p>
+<p>«The representation may change; authoritative reality, relevant provenance, and semantically necessary Actor state must remain recoverable.»</p>
+<p>B.10 Operational Measurement</p>
+<p>The concerns in this appendix should be measured rather than prematurely converted into universal runtime policy.</p>
+<p>Relevant measurements include:</p>
+<ul>
+<li>history size over long-lived sessions,</li>
+<li>compaction frequency,</li>
+<li>recovery time from snapshots,</li>
+<li>provenance retained per compacted segment,</li>
+<li>Actor reconstruction cost,</li>
+<li>frequency of non-action appraisal state transitions,</li>
+<li>durable Actor-state write rate,</li>
+<li>recovery divergence between persisted and reconstructed state.</li>
+</ul>
+<p>These measurements may later constrain choices in the Open Axes, but they do not themselves define the architecture.</p>
+<p>B.11 Refined Recovery Principle</p>
+<p>The recovery model can therefore be stated more precisely:</p>
+<p>«Canonical Room history defines shared reality. Durable Actor state preserves semantically necessary local state. Derived Actor state may be reconstructed. Transient cognition may be discarded. History compaction may change representation but must preserve the provenance and semantic information required to recover reality and Actor state.»</p>
 
 </article>
 </main>
