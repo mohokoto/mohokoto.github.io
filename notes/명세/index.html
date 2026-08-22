@@ -10,7 +10,7 @@
      republishes; "updated" here = most recent (re)publish - NOT the
      Draft's own updated field (last save), a different concept. -->
 <meta name="date" content="2026-08-21T08:15:16.076Z">
-<meta name="updated" content="2026-08-22T15:06:34.428Z">
+<meta name="updated" content="2026-08-22T15:07:29.804Z">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@
 <article>
 <a class="back-link" href="/notes/">&larr; Notes</a>
 <h1>Dantok Stateful Event-Driven Actor Runtime</h1>
-<p class="byline"><time datetime="2026-08-21T08:15:16.076Z">2026년 8월 21일</time> &middot; Updated <time datetime="2026-08-22T15:06:34.428Z">2026년 8월 22일</time></p>
+<p class="byline"><time datetime="2026-08-21T08:15:16.076Z">2026년 8월 21일</time> &middot; Updated <time datetime="2026-08-22T15:07:29.804Z">2026년 8월 22일</time></p>
 <p>Dantok Stateful Event-Driven Actor Runtime</p>
 <ol>
 <li>Purpose</li>
@@ -1119,6 +1119,313 @@ Cognition may proceed concurrently.
 Reality is established authoritatively.
 Causality is preserved explicitly.
 Execution may disappear; state may not.»</p>
+<hr>
+<p>Appendix A — Semantic Ownership, Activation, Provenance, and Recovery Clarifications</p>
+<p>This appendix clarifies several semantic and runtime boundaries that are necessary to implement the Core Invariants without closing the execution choices intentionally left open elsewhere.</p>
+<p>It does not replace or narrow the Open Axes. Its purpose is to make explicit the minimum ownership and recoverability assumptions on which those alternatives can operate.</p>
+<p>A.1 World Interpretation Role</p>
+<p>Common Ground / Knowledge Interpretation is a semantic role distinct from both authoritative Room state and Actor-specific appraisal.</p>
+<p>Its responsibility is to derive a candidate shared-knowledge update from Room events and available context.</p>
+<p>It does not thereby acquire authority to establish authoritative Room state.</p>
+<p>Conceptually:</p>
+<p>Room Event
+    ↓
+World Interpretation
+    ↓
+shared-knowledge proposal
+    ↓
+Room authority
+    ↓
+authoritative Room state</p>
+<p>The execution entity responsible for World Interpretation is deliberately not fixed by this architecture.</p>
+<p>It may be implemented as:</p>
+<ul>
+<li>a dedicated World Interpreter,</li>
+<li>a component colocated with Room runtime infrastructure,</li>
+<li>another logical Actor-like cognitive unit,</li>
+<li>or another equivalent execution arrangement.</li>
+</ul>
+<p>The semantic requirement is only:</p>
+<p>«Interpretation of the shared world does not itself confer authority over the shared world.»</p>
+<p>This preserves:</p>
+<p>«Room is the world authority, not the cognitive owner of every interpretation.»</p>
+<p>The relationship between World Interpretation and Actor Appraisal remains an execution-policy axis. Logical dependency does not determine invocation ordering.</p>
+<p>A.2 Actor-Owned Temporal Boundaries</p>
+<p>Pressure and other elapsed-time state remain Actor-local even when Actor execution is not resident.</p>
+<p>If an Actor can derive a meaningful future boundary from its current state, that Actor may determine a candidate next activation boundary.</p>
+<p>Conceptually:</p>
+<p>Actor state at t0
+    ↓
+next meaningful boundary
+    ↓
+runtime activation request
+    ↓
+Actor activation
+    ↓
+lazy temporal advancement</p>
+<p>Runtime infrastructure may provide:</p>
+<ul>
+<li>timer registration,</li>
+<li>deadline delivery,</li>
+<li>activation persistence,</li>
+<li>wake-up delivery.</li>
+</ul>
+<p>It does not thereby acquire ownership of the Actor&#39;s pressure, threshold, or eligibility semantics.</p>
+<p>Thus:</p>
+<p>«Scheduling Actor activation is not equivalent to scheduling Actor behavior.»</p>
+<p>The exact timer mechanism remains an execution/deployment choice.</p>
+<p>A.3 Temporal Activation Is a Trigger, Not a Decision</p>
+<p>A scheduled temporal boundary does not itself establish that an action should occur.</p>
+<p>Between scheduling and activation:</p>
+<ul>
+<li>Room state may change,</li>
+<li>Actor state may change,</li>
+<li>a previously relevant condition may disappear,</li>
+<li>a new condition may become relevant.</li>
+</ul>
+<p>Therefore activation requires re-evaluation of current state.</p>
+<p>planned boundary
+      ↓
+state changes
+      ↓
+activation
+      ↓
+re-evaluate current Actor state
+      ↓
+advance / reschedule / discard / continue</p>
+<p>This preserves the distinction between:</p>
+<p>«a computation being scheduled»</p>
+<p>and:</p>
+<p>«an action becoming eligible.»</p>
+<p>A.4 Actor State and Recovery Classification</p>
+<p>For recovery purposes, Actor-local state should be distinguished by semantic role rather than merely by physical storage.</p>
+<p>Durable Semantic State</p>
+<p>State whose loss would alter intended future behavior and which cannot be reconstructed deterministically from available authoritative inputs.</p>
+<p>Examples may include:</p>
+<ul>
+<li>durable Actor memory,</li>
+<li>persistent Actor-owned relationship state,</li>
+<li>persistent configuration,</li>
+<li>a read cursor when its exact advancement is semantically significant,</li>
+<li>other Actor-local state whose history must survive execution loss.</li>
+</ul>
+<p>Derived Semantic State</p>
+<p>State that affects Actor behavior but can be reconstructed deterministically from canonical Room history, Character configuration, and other durable Actor state.</p>
+<p>Examples may include:</p>
+<ul>
+<li>derived pressure,</li>
+<li>derived attention state,</li>
+<li>derived eligibility state,</li>
+<li>other projections of authoritative inputs.</li>
+</ul>
+<p>Transient Execution State</p>
+<p>State associated only with an unfinished computation and therefore normally safe to discard.</p>
+<p>Examples may include:</p>
+<ul>
+<li>in-flight realization,</li>
+<li>temporary appraisal output,</li>
+<li>activation markers,</li>
+<li>provider request state,</li>
+<li>transient caches.</li>
+</ul>
+<p>The architecture does not prescribe which concrete Actor variables belong to which category in every implementation.</p>
+<p>The invariant is:</p>
+<p>«Semantically necessary Actor state must either survive durably or be deterministically reconstructible after execution loss.»</p>
+<p>This classification therefore supplements I18 without requiring every cognitive step to become a canonical Room event.</p>
+<p>A.5 Appraisal Without Action</p>
+<p>Actor appraisal may produce a meaningful Actor-local state transition even when it produces no Room action.</p>
+<p>For example:</p>
+<p>Actor observes E42
+    ↓
+appraisal
+    ↓
+read cursor advances
+pressure changes
+attention changes
+no action proposal</p>
+<p>The absence of a Room action does not imply that the appraisal was semantically irrelevant.</p>
+<p>Such resulting state must therefore be classified as:</p>
+<ul>
+<li>durable semantic state,</li>
+<li>derived semantic state,</li>
+<li>or transient execution state.</li>
+</ul>
+<p>This keeps recovery semantics explicit without requiring all appraisal results to be published into the shared world.</p>
+<p>A.6 Observation Provenance</p>
+<p>Causal provenance is required to preserve the distinction between canonical chronology and Actor awareness.</p>
+<p>An ActionProposal therefore needs sufficient information to answer:</p>
+<p>«Which Room events and which world version were actually observed when this proposal was generated?»</p>
+<p>A minimal logical representation may include:</p>
+<p>ActionProposal
+├─ actorId
+├─ proposal identity
+├─ sourceWorldVersion
+├─ observedEventIds
+└─ generated action</p>
+<p>The concrete representation of causal metadata remains an Open Axis.</p>
+<p>The architecture does not require:</p>
+<ul>
+<li>a particular causal graph,</li>
+<li>a reply relation,</li>
+<li>a specific event-linking mechanism,</li>
+<li>or a particular storage format.</li>
+</ul>
+<p>What is required is the ability to reconstruct the relevant observation boundary for purposes including:</p>
+<ul>
+<li>No Retroactive Causality,</li>
+<li>stale-realization analysis,</li>
+<li>impact assessment,</li>
+<li>recovery diagnostics,</li>
+<li>causal interpretation.</li>
+</ul>
+<p>Thus:</p>
+<p>«Causal provenance is semantically required; its concrete representation is not prescribed.»</p>
+<p>A.7 Observation Boundary Is Not Canonical Ordering</p>
+<p>Room history and Actor perception history remain distinct.</p>
+<p>An event may already be canonical in Room history while remaining unobserved by an Actor.</p>
+<p>Therefore a valid proposal may have:</p>
+<p>current Room version &gt; sourceWorldVersion
+observedEventIds ⊂ canonical history</p>
+<p>This is not an inconsistency.</p>
+<p>The proposal records the Actor&#39;s observation boundary, not merely the latest Room version.</p>
+<p>Commit order must therefore never retroactively enlarge the Actor&#39;s observation set.</p>
+<p>This is the runtime consequence of I16 No Retroactive Causality.</p>
+<p>A.8 Logical Action Identity and Execution Attempts</p>
+<p>Idempotent commit requires the Room to distinguish:</p>
+<ul>
+<li>a retry of the same logical action,</li>
+<li>a new logical action,</li>
+<li>and a separate execution attempt that produced the proposal.</li>
+</ul>
+<p>Therefore logical action identity should not be assumed to be identical to provider invocation identity or in-flight execution identity.</p>
+<p>Conceptually:</p>
+<p>logical action identity
+        ≠
+provider invocation identity
+        ≠
+execution attempt identity</p>
+<p>The architecture does not prescribe how logical action identity is generated.</p>
+<p>Possible mechanisms include:</p>
+<ul>
+<li>durable proposal identity,</li>
+<li>deterministic identity derived from an explicitly defined logical action,</li>
+<li>persisted proposal metadata,</li>
+<li>another equivalent idempotency mechanism.</li>
+</ul>
+<p>The invariant is:</p>
+<p>«A retry representing the same logical action must remain identifiable as that same logical action.»</p>
+<p>This allows transient execution state to be discarded without making duplicate world commits indistinguishable from new actions.</p>
+<p>A.9 Publication, Availability, Perception, and Appraisal</p>
+<p>The architecture distinguishes at least four semantic stages:</p>
+<p>published
+    ↓
+available to Actor
+    ↓
+perceived / read
+    ↓
+appraised</p>
+<p>These stages need not be owned by the same component.</p>
+<p>Room owns canonical publication.</p>
+<p>Actor owns the decision to perceive or read an available event according to Actor-local state.</p>
+<p>Appraisal consumes the Actor&#39;s resulting observation context.</p>
+<p>Therefore:</p>
+<p>«Publication does not imply perception, and perception does not imply appraisal.»</p>
+<p>The concrete delivery mechanism remains open.</p>
+<p>Possible implementations include:</p>
+<ul>
+<li>per-Actor logical inboxes,</li>
+<li>cursor-based history traversal,</li>
+<li>filtered event delivery,</li>
+<li>event streams,</li>
+<li>or equivalent mechanisms.</li>
+</ul>
+<p>The semantic requirement is that canonical publication order and Actor perception timing remain distinct.</p>
+<p>A.10 Runtime Services Do Not Acquire Behavioral Authority</p>
+<p>A runtime service may perform infrastructure work on behalf of Actors without becoming the owner of Actor behavior.</p>
+<p>Examples include:</p>
+<ul>
+<li>scheduling an activation,</li>
+<li>delivering an event,</li>
+<li>persisting Actor state,</li>
+<li>reconstructing Actor state,</li>
+<li>storing a proposal,</li>
+<li>retrying a failed invocation.</li>
+</ul>
+<p>These operations do not imply that the runtime has decided:</p>
+<ul>
+<li>that an Actor should speak,</li>
+<li>what the Actor should say,</li>
+<li>how the Actor should appraise an event,</li>
+<li>or what an Actor&#39;s internal state means.</li>
+</ul>
+<p>This preserves the separation:</p>
+<p>runtime execution authority
+        ≠
+Actor behavioral authority
+        ≠
+Room world authority</p>
+<p>A.11 Preservation of Open Axes</p>
+<p>The clarifications above do not select among the execution strategies intentionally left open in the main document.</p>
+<p>In particular, they do not prescribe:</p>
+<ul>
+<li>CG/Appraisal invocation ordering,</li>
+<li>World Interpreter deployment topology,</li>
+<li>Actor deployment topology,</li>
+<li>timer implementation,</li>
+<li>batching or debouncing,</li>
+<li>stale invalidation rules,</li>
+<li>cancellation policy,</li>
+<li>conflict resolution algorithm,</li>
+<li>persistence topology,</li>
+<li>snapshot frequency,</li>
+<li>latency compensation,</li>
+<li>or fairness policy.</li>
+</ul>
+<p>They establish only the semantic boundaries needed for those alternatives to remain compatible with the Core Invariants.</p>
+<p>The governing principle is:</p>
+<p>«Close semantic gaps; keep execution choices open unless an invariant requires otherwise.»</p>
+<p>A.12 Extended Runtime View</p>
+<p>With these boundaries made explicit, the target architecture can be understood as:</p>
+<pre><code>                     ROOM / WORLD
+                          │
+             canonical state / history
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+  World Interpretation  Actor A          Actor B
+          │               │                │
+   shared-knowledge       │                │
+      proposal        perception        perception
+          │               ↓                ↓
+          │           appraisal         appraisal
+          │               ↓                ↓
+          │        Actor-local state Actor-local state
+          │               ↓                ↓
+          │          eligibility       eligibility
+          │               ↓                ↓
+          │          realization       realization
+          │               ↓                ↓
+          └──────────── proposals ─────────┘
+                          │
+                          ▼
+                authoritative Room commit
+                          │
+                          ▼
+                   canonical history
+                          │
+             ┌────────────┴────────────┐
+             ▼                         ▼
+       Actor projections          shared knowledge
+</code></pre>
+<p>The semantic roles are therefore:</p>
+<p>Room — authoritative shared reality.</p>
+<p>World Interpretation — shared-world cognitive interpretation that produces proposals rather than authoritative mutations.</p>
+<p>Actor — autonomous Character-specific cognition and Actor-local state.</p>
+<p>Runtime infrastructure — activation, delivery, persistence, and execution support without behavioral authority.</p>
+<p>A.13 Refined Architectural Boundary</p>
+<p>The architecture can therefore be summarized more precisely as:</p>
+<p>«Room owns reality. Actor owns agency and Actor-local state. Shared-world interpretation may propose knowledge without acquiring world authority. Runtime infrastructure may activate and persist computation without acquiring behavioral authority. Canonical history and observation provenance preserve causality. Execution may disappear; semantically necessary state must remain durable or reconstructible.»</p>
 
 </article>
 </main>
