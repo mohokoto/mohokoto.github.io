@@ -2,7 +2,7 @@
 
 ① Regulates presentation-layer norms — how UI is structured across
 pages, and how runtime-assembled UI components must initialize —
-independent of backend/domain concerns.
+independent of Deep (backend- or frontend-side domain-logic) concerns.
 ② Applies system-wide, to any page or component in the Editor UI.
 ③ Does not cover domain object structure (`ARCHITECTURE.md`),
 relationships between objects (`RELATIONS.md`), domain/cross-object
