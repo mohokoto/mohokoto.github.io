@@ -33,6 +33,15 @@ document instead, the way a static-site-specific presentation norm
 would stay in `SITE.md` rather than move here (see `SITE.md`'s note on
 this).
 
+This Deep/Surface distinction is not itself a backend/frontend split.
+`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`'s own domain norms
+already constrain both backend storage and frontend display of Note/QA
+data — they're Deep regardless of which side of the wire they land on.
+Surface-layer norms have so far only arisen in the frontend (the
+Editor UI's own structure and component initialization) because that's
+where this kind of concern has actually surfaced in this project, not
+because Surface is inherently a frontend-only category.
+
 ## List rows: fixed two-tier structure
 
 A list row (Note list, Q/A list) always has its title on its own
