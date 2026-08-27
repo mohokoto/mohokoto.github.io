@@ -59,7 +59,7 @@ what mattered for the individual's own.
 ## System overview
 
 ```text
-Editor UI (browser) ──── mohokoto-worker.parkseohwa.workers.dev ──── behind Cloudflare Access
+Editor UI (browser) ──── mohokoto-worker.mohokoto.workers.dev ──── behind Cloudflare Access
         │                         │
         │ Note/Q-A CRUD,          │ GitHub App A: contents:write
         │ publish/unpublish       ▼
@@ -92,7 +92,7 @@ workflow. No other backend, database, or hosting exists.
 ## Cloudflare Worker (`mohokoto-worker`)
 
 Single Hono app, one deployment target
-(`mohokoto-worker.parkseohwa.workers.dev`, no custom domain). Serves
+(`mohokoto-worker.mohokoto.workers.dev`, no custom domain). Serves
 three kinds of things from one origin — a deliberate choice to avoid
 the multi-origin Access/CORS surface a separate editor host would add:
 
@@ -147,7 +147,7 @@ directly through App B. (The constraint this creates for any new
 
 ## Access control
 
-**Cloudflare Access** gates the entire `mohokoto-worker.parkseohwa.workers.dev`
+**Cloudflare Access** gates the entire `mohokoto-worker.mohokoto.workers.dev`
 domain at Cloudflare's edge (before the Worker or static assets ever
 run) — one Access Application (`mohokoto-worker`), one policy: allow
 `parkseohwa@gmail.com` only.
