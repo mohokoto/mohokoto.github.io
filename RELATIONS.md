@@ -7,8 +7,12 @@ about them.
 (Note, Q/A).
 ③ Does not define what an object *is* (`ARCHITECTURE.md`), how the
 system may act on objects or their relationships over time
-(`BEHAVIOR.md`), presentation-layer norms (`SURFACE.md`), or
-subsystem-internal relationship mechanics (`NOTES.md`/`Q-A.md`).
+(`BEHAVIOR.md`), or subsystem-internal relationship mechanics
+(`NOTES.md`/`Q-A.md`) — all of these regulate the same Note/Q-A domain
+this document does, just a different concern or coverage within it.
+Presentation-layer norms — how the Editor UI itself is structured and
+how its components initialize — are a different layer of concern
+entirely, not another domain concern; see `SURFACE.md`.
 
 ## Relationships must be preserved
 

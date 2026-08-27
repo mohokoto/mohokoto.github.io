@@ -5,7 +5,10 @@ site — what it's built from and how it's deployed and accessed.
 ② Applies to the static site (`mohokoto.github.io`'s `index.html`,
 `styles.css`, and related static assets) only.
 ③ Does not cover the Note or Q/A subsystems, or any global-scope norm
-(`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`).
+(`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`). `SURFACE.md`'s
+current scope is the Editor UI only and does not reach the static
+site; a future presentation-layer norm specific to the static site
+would stay in this document rather than move to `SURFACE.md`.
 
 ## Purpose
 

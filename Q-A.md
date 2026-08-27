@@ -10,7 +10,10 @@ a Note draws on Q/A is a Notes-subsystem concern (`NOTES.md`'s Sources
 section); the cross-object workflow of moving from Q/A exploration to
 Note authoring is a `BEHAVIOR.md` concern once written. The routes
 exposed for Q/A are inventoried in `ARCHITECTURE.md` (Global/Elements);
-this document covers what using them does.
+this document covers what using them does. How the Q/A editor UI itself
+is structured (list rows, navigation, component initialization) is a
+`SURFACE.md` concern, not this document's — that document's current
+scope includes the Q/A editor.
 
 ## Purpose
 

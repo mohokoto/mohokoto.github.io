@@ -18,6 +18,21 @@ file even after a split, the same way `RELATIONS.md`/`BEHAVIOR.md`
 stayed Global once `SITE.md`/`NOTES.md`/`Q-A.md` were split out from
 them.
 
+This document sits in a different layer of concern than
+`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`, not a different branch
+of the same one: those three regulate the Note/Q-A domain itself — what
+it is, how it relates, what happens to it — independent of how it's
+displayed. This document regulates how the Editor UI is structured and
+how its runtime-assembled components initialize, independent of which
+domain data is being shown. Its Global coverage reflects the current
+scope of what's actually written here — norms that happen to apply
+across every page/component in the Editor UI — not an inherent property
+of being a presentation concern. A future presentation norm scoped to
+one page or one subsystem would belong in that subsystem's own
+document instead, the way a static-site-specific presentation norm
+would stay in `SITE.md` rather than move here (see `SITE.md`'s note on
+this).
+
 ## List rows: fixed two-tier structure
 
 A list row (Note list, Q/A list) always has its title on its own

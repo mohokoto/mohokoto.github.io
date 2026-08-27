@@ -7,7 +7,10 @@ revision, publish pipeline) of the Note object.
 ③ Does not cover the Q/A subsystem itself, the V0 static site, or any
 global-scope norm (`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`).
 The routes exposed for Notes are inventoried in `ARCHITECTURE.md`
-(Global/Elements); this document covers what using them does.
+(Global/Elements); this document covers what using them does. How the
+Note editor UI itself is structured and how its components initialize
+is a `SURFACE.md` concern, not this document's — that document's
+current scope includes the Note editor.
 
 ## Purpose
 

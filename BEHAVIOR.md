@@ -6,9 +6,13 @@ that span multiple subsystems.
 ② Applies system-wide, to any action on any currently implemented
 object type, and to any workflow that spans more than one subsystem.
 ③ Does not define what an object *is* (`ARCHITECTURE.md`), how objects
-relate to each other (`RELATIONS.md`), presentation-layer norms
-(`SURFACE.md`), or subsystem-internal behavior confined to one object
-type (`NOTES.md`/`Q-A.md`'s own state transitions).
+relate to each other (`RELATIONS.md`), or subsystem-internal behavior
+confined to one object type (`NOTES.md`/`Q-A.md`'s own state
+transitions) — all of these regulate the same Note/Q-A domain this
+document does, just a different concern or coverage within it.
+Presentation-layer norms — how the Editor UI itself is structured and
+how its components initialize — are a different layer of concern
+entirely, not another domain concern; see `SURFACE.md`.
 
 ## Change over time
 
