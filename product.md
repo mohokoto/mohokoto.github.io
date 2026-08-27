@@ -2,9 +2,9 @@
 
 **This is not an authority document.** It does not constrain the
 current implementation, and nothing here is required to be built.
-`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`/`SITE.md`/`NOTES.md`/
-`Q-A.md` are the authority documents; the #18 audit's "current
-implementation constraining norm" test does not apply here.
+`ARCHITECTURE.md`/`RELATIONS.md`/`BEHAVIOR.md`/`SURFACE.md`/`SITE.md`/
+`NOTES.md`/`Q-A.md` are the authority documents; the #18 audit's
+"current implementation constraining norm" test does not apply here.
 
 This document preserves content that has no other durable record —
 unimplemented product vision, an unimplemented category, and the

@@ -5,10 +5,10 @@ or may not do when acting on stored content, and cross-object workflows
 that span multiple subsystems.
 ② Applies system-wide, to any action on any currently implemented
 object type, and to any workflow that spans more than one subsystem.
-③ Does not define what an object *is* (`ARCHITECTURE.md`) or how
-objects relate to each other (`RELATIONS.md`), or subsystem-internal
-behavior confined to one object type (`NOTES.md`/`Q-A.md`'s own state
-transitions).
+③ Does not define what an object *is* (`ARCHITECTURE.md`), how objects
+relate to each other (`RELATIONS.md`), presentation-layer norms
+(`SURFACE.md`), or subsystem-internal behavior confined to one object
+type (`NOTES.md`/`Q-A.md`'s own state transitions).
 
 ## Change over time
 

@@ -6,9 +6,9 @@ an object must satisfy to be a valid element of this system in the
 first place.
 ② Applies system-wide.
 ③ Does not cover relationships between objects (`RELATIONS.md`),
-system behavior or cross-object workflow (`BEHAVIOR.md`), or
-subsystem-internal content models and state transitions
-(`SITE.md`/`NOTES.md`/`Q-A.md`).
+system behavior or cross-object workflow (`BEHAVIOR.md`),
+presentation-layer norms (`SURFACE.md`), or subsystem-internal content
+models and state transitions (`SITE.md`/`NOTES.md`/`Q-A.md`).
 
 If the running system and this document disagree, that's a bug in one
 of the two to be resolved deliberately. Update this document when the

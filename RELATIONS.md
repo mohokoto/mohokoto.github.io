@@ -7,8 +7,8 @@ about them.
 (Note, Q/A).
 ③ Does not define what an object *is* (`ARCHITECTURE.md`), how the
 system may act on objects or their relationships over time
-(`BEHAVIOR.md`), or subsystem-internal relationship mechanics
-(`NOTES.md`/`Q-A.md`).
+(`BEHAVIOR.md`), presentation-layer norms (`SURFACE.md`), or
+subsystem-internal relationship mechanics (`NOTES.md`/`Q-A.md`).
 
 ## Relationships must be preserved
 
