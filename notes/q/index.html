@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurume Scaffold Selection Specification · mohokoto</title>
+<!-- Machine-readable, not just a visual nicety - the V0 sync workflow
+     reads these to sort/display the notes index page it generates
+     (mohokoto.github.io#8, #9). "date" = first published, stable across
+     republishes; "updated" here = most recent (re)publish - NOT the
+     Draft's own updated field (last save), a different concept. -->
+<meta name="date" content="2026-09-16T07:10:02.563Z">
+<meta name="updated" content="2026-09-16T07:10:02.563Z">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+<nav aria-label="Primary">
+<a href="/#home" class="brand">mohokoto</a>
+<ul>
+<li><a href="/#about">About</a></li>
+<li><a href="/#projects">Projects</a></li>
+<li><a href="/notes/">Notes</a></li>
+<li><a href="/#links">Links</a></li>
+</ul>
+</nav>
+</header>
+<main id="main">
+<article>
+<a class="back-link" href="/notes/">&larr; Notes</a>
+<h1>Kurume Scaffold Selection Specification</h1>
+<p class="byline"><time datetime="2026-09-16T07:10:02.563Z">2026년 9월 16일</time></p>
+<ol>
+<li>목적</li>
+</ol>
+<p>Kurume에서 새로운 상태, 관찰기, 메모리, 규칙, 추적기 등 LLM 외부의 scaffold를 추가할 때 적용하는 공통 판단 기준을 정의한다.</p>
+<p>이 명세의 목적은 다음과 같다.</p>
+<ul>
+<li>LLM이 이미 충분히 잘 처리하는 능력을 불필요하게 외부화하지 않는다.</li>
+<li>LLM이 반복적으로 실패하는 중요한 능력은 필요한 범위에서 명시화한다.</li>
+<li>외부화 과정에서 원래의 풍부한 암묵적 능력을 훼손하지 않는다.</li>
+<li>현재 모델 세대에 필요한 scaffold와 장기적으로 유지해야 할 제품 구조를 구별한다.</li>
+<li>기능 추가와 모델 교체가 서로 독립적으로, 점진적으로 이루어질 수 있게 한다.</li>
+</ul>
+<hr>
+<ol start="2">
+<li>기본 원리</li>
+</ol>
+<p>Externalization Principle</p>
+<p>«Externalize only when a consequential implicit failure can be represented and reinjected with sufficient fidelity, at a net benefit to the whole system.»</p>
+<p>즉,</p>
+<p>«제품적으로 중요한 LLM의 암묵적 실패가 존재하고, 그 현상을 충분한 충실도로 외부 표현한 뒤 다시 LLM의 행동에 반영할 수 있으며, 그 결과가 시스템 전체에 순이익을 줄 때만 명시화한다.»</p>
+<p>명시화 자체는 진보가 아니다.</p>
+<p>LLM 시스템에서 명시화는 다음과 같은 정보 변환이다.</p>
+<p>implicit capability
+→ explicit representation
+→ persistence / processing
+→ reinjection
+→ model behavior</p>
+<p>따라서 명시화 여부는 이 전체 round trip을 기준으로 판단한다.</p>
+<hr>
+<ol start="3">
+<li>상위 판단 구조</li>
+</ol>
+<p>모든 scaffold 후보는 세 가지 상위 질문을 통과해야 한다.</p>
+<p>I. Necessity — 왜 밖으로 꺼내야 하는가?</p>
+<p>LLM 내부에 그대로 두었을 때 실제 제품 품질 문제가 발생하는지를 평가한다.</p>
+<p>관련 기준:</p>
+<ol>
+<li>Implicit Failure</li>
+<li>Causal Leverage</li>
+</ol>
+<hr>
+<p>II. Fidelity — 밖으로 꺼냈다가 다시 넣어도 같은 현상인가?</p>
+<p>암묵적 현상이 외부 표현과 재주입 과정을 거치면서 훼손되지 않는지를 평가한다.</p>
+<p>관련 기준:</p>
+<ol start="3">
+<li>Conceptual Separability</li>
+<li>Representability</li>
+<li>Injectability</li>
+</ol>
+<hr>
+<p>III. System Fit — 전체 제품에서 순이익인가?</p>
+<p>국소적 개선이 시스템 전체의 자연스러움, 복잡성, 향후 진화를 해치지 않는지를 평가한다.</p>
+<p>관련 기준:</p>
+<ol start="6">
+<li>Distortion / Lock-in / Complexity Risk</li>
+<li>Product Calibration</li>
+</ol>
+<hr>
+<ol start="4">
+<li><p>Operational Criteria</p>
+</li>
+<li><p>Implicit Failure</p>
+</li>
+</ol>
+<p>질문</p>
+<p>«현재 LLM에 이 요소를 암묵적으로 맡겼을 때 실제로 반복적인 실패가 발생하는가?»</p>
+<p>특히 다음을 본다.</p>
+<ul>
+<li>여러 턴에 걸쳐 정보가 소실되는가?</li>
+<li>장기적인 분포나 방향성이 유지되지 않는가?</li>
+<li>같은 종류의 오류가 반복되는가?</li>
+<li>모델 호출이 바뀔 때 상태 해석이 불필요하게 흔들리는가?</li>
+<li>실패가 단발성 generation error가 아니라 구조적인가?</li>
+</ul>
+<p>원칙</p>
+<p>LLM이 이미 충분히 잘 처리하는 요소는 외부화하지 않는다.</p>
+<p>“인간에게 존재하는 상태”라는 이유만으로 구현하지 않는다.</p>
+<p>Scaffold는 ontology-driven이 아니라 기본적으로 failure-driven이어야 한다.</p>
+<hr>
+<ol start="2">
+<li>Causal Leverage</li>
+</ol>
+<p>질문</p>
+<p>«이 요소를 명시화하면 실제 미래 행동과 사용자 체감 품질이 의미 있게 좋아지는가?»</p>
+<p>구별할 것:</p>
+<ul>
+<li>내부 표현이 더 정교해지는 것</li>
+<li>실제 출력 행동이 좋아지는 것</li>
+</ul>
+<p>전자는 후자를 보장하지 않는다.</p>
+<p>고려 요소</p>
+<ul>
+<li>다음 발화에 영향을 주는가?</li>
+<li>여러 턴의 품질에 누적 효과가 있는가?</li>
+<li>캐릭터의 일관성이나 사회적 연속성을 실제로 높이는가?</li>
+<li>사용자가 감지할 수 있는 차이를 만드는가?</li>
+<li>추가 inference, token, storage, latency를 정당화하는가?</li>
+</ul>
+<p>Causal leverage가 낮다면 scaffold 후보가 아니다.</p>
+<hr>
+<ol start="3">
+<li>Conceptual Separability</li>
+</ol>
+<p>질문</p>
+<p>«이 상태를 다른 상태와 충분히 구별할 수 있는가?»</p>
+<p>예:</p>
+<ul>
+<li>persona</li>
+<li>conversation state</li>
+<li>individual state</li>
+<li>relationship state</li>
+<li>world state</li>
+<li>subjective mental model</li>
+</ul>
+<p>간 경계를 검토한다.</p>
+<p>위험</p>
+<p>경계가 불분명하면 동일한 현상이 여러 장소에 중복 저장된다.</p>
+<p>예:</p>
+<ul>
+<li>개인 상태: Audrey is annoyed with Grace.</li>
+<li>관계 상태: Audrey–Grace tension.</li>
+<li>대화 상태: current tension around Grace.</li>
+</ul>
+<p>같은 사건을 서로 다른 표현으로 중복 관리하면 상태 간 충돌과 자기강화가 발생할 수 있다.</p>
+<p>원칙</p>
+<p>명확한 소유권과 시간 규모를 정의할 수 없는 상태는 적극적으로 외부화하지 않는다.</p>
+<hr>
+<ol start="4">
+<li>Representability</li>
+</ol>
+<p>질문</p>
+<p>«원래의 암묵적 현상을 외부 state로 표현할 때 중요한 정보가 지나치게 손실되지 않는가?»</p>
+<p>주의해야 할 압축:</p>
+<ul>
+<li>숫자 score</li>
+<li>단일 label</li>
+<li>rigid taxonomy</li>
+<li>discrete state machine</li>
+</ul>
+<p>예를 들어 실제 인간의 기분을</p>
+<p>&quot;mood = 0.63&quot;</p>
+<p>으로 바꾸는 것이 관리하기 쉽다는 사실은 그것이 좋은 표현이라는 뜻이 아니다.</p>
+<p>좋은 representation의 조건</p>
+<ul>
+<li>원래 현상의 행동적 의미를 보존한다.</li>
+<li>불필요한 정밀도를 가장하지 않는다.</li>
+<li>불확실성을 표현할 수 있다.</li>
+<li>시간이 지나도 해석 가능하다.</li>
+<li>모델에 특정 행동을 과도하게 강제하지 않는다.</li>
+</ul>
+<hr>
+<ol start="5">
+<li>Injectability</li>
+</ol>
+<p>질문</p>
+<p>«외부화한 상태를 다시 LLM에게 제공했을 때 원하는 정도와 방식으로 영향을 줄 수 있는가?»</p>
+<p>이 기준은 단순히 “프롬프트에 넣을 수 있는가”를 의미하지 않는다.</p>
+<p>예를 들어 원하는 효과가:</p>
+<p>«Grace가 오늘 평소보다 약간 저에너지인 상태가 여러 발화의 확률분포를 미세하게 편향시킨다.»</p>
+<p>인데 실제 prompt가:</p>
+<p>«Grace is tired.»</p>
+<p>라면 모델은 이를 salient theme으로 받아들여 계속 피곤함을 언급할 수 있다.</p>
+<p>이 경우 저장에는 성공했지만 reinjection에는 실패한 것이다.</p>
+<p>핵심 개념</p>
+<p>latent bias ≠ salient instruction</p>
+<p>외부 상태가 원래 암묵적 현상보다 더 강하게 행동을 지배한다면 scaffold가 오히려 현상을 왜곡한다.</p>
+<hr>
+<ol start="6">
+<li>Distortion / Lock-in / Complexity Risk</li>
+</ol>
+<p>질문</p>
+<p>«명시화함으로써 원래 LLM의 풍부한 추론을 제한하거나 잘못된 상태를 고착시키지는 않는가?»</p>
+<p>검토 대상:</p>
+<ul>
+<li>잘못 추정한 state의 자기강화</li>
+<li>explicit state에 대한 과도한 attention</li>
+<li>spontaneous behavior 감소</li>
+<li>상태 시스템 간 충돌</li>
+<li>추가 observer / processor / migration 부담</li>
+<li>미래 모델이 더 잘 처리하게 되었을 때 scaffold 제거 난이도</li>
+</ul>
+<p>핵심 원칙</p>
+<p>좋은 scaffold는 추가하기 쉬운 것뿐 아니라 제거하기도 쉬워야 한다.</p>
+<p>현재 필요한 보정 장치가 미래의 영구적 기술 부채가 되어서는 안 된다.</p>
+<hr>
+<ol start="7">
+<li>Product Calibration</li>
+</ol>
+<p>질문</p>
+<p>«이 scaffold의 해상도, 변화 속도, 영향력이 Kurume 전체 제품과 균형을 이루는가?»</p>
+<p>국소적으로 완벽한 기능이라도 제품 전체와 calibration이 맞지 않으면 추가하지 않는다.</p>
+<p>검토 대상:</p>
+<p>시간 규모</p>
+<p>각 상태가 제품의 실제 cadence에 비해 너무 빨리 또는 느리게 변하지 않는가?</p>
+<p>영향력</p>
+<p>해당 상태가 전체 발화를 지나치게 지배하지 않는가?</p>
+<p>사용자 가시성</p>
+<p>내부 시스템의 복잡성에 상응하는 결과가 사용자 경험에 나타나는가?</p>
+<p>기능 간 균형</p>
+<p>한 subsystem만 과도하게 정교해지지 않았는가?</p>
+<p>비용</p>
+<p>호출 빈도, token, storage, latency가 제품 전체 구조와 맞는가?</p>
+<p>제품 범위</p>
+<p>Kurume를 필요 이상으로 다른 종류의 제품으로 바꾸고 있지 않은가?</p>
+<p>예:</p>
+<p>정교한 world simulation이 사회적 그룹챗을 생활 시뮬레이터로 변질시킨다면 calibration 실패다.</p>
+<hr>
+<ol start="5">
+<li>Round-Trip Fidelity</li>
+</ol>
+<p>Scaffold 평가의 핵심 과정은 다음과 같다.</p>
+<p>Implicit phenomenon
+→ Detection
+→ Explicit representation
+→ Persistence / processing
+→ Injection
+→ Generated behavior</p>
+<p>각 단계에서 정보가 손실되거나 증폭될 수 있다.</p>
+<p>따라서 다음 질문을 한다.</p>
+<p>«이 전체 과정을 통과한 뒤 나타난 행동이, scaffold를 만들게 한 원래 현상을 실제로 더 잘 보존하는가?»</p>
+<p>그렇지 않다면 외부화에 성공한 것이 아니다.</p>
+<p>특히 다음 두 실패를 구별한다.</p>
+<p>Loss</p>
+<p>원래 암묵적 현상의 미묘함이 representation 과정에서 사라진다.</p>
+<p>Amplification</p>
+<p>원래는 약한 편향이었던 요소가 prompt에서 foreground instruction으로 변한다.</p>
+<p>둘 다 round-trip fidelity 실패다.</p>
+<hr>
+<ol start="6">
+<li>Model Relativity</li>
+</ol>
+<p>모든 scaffold 판단은 model-relative하다.</p>
+<p>«Every scaffold decision is model-relative and revisable.»</p>
+<p>어떤 요소가 Kurume에서 본질적으로 명시적이어야 한다고 가정하지 않는다.</p>
+<p>현재 모델에서:</p>
+<ul>
+<li>implicit failure가 크고</li>
+<li>scaffold leverage가 높으며</li>
+<li>round-trip fidelity가 충분하다면</li>
+</ul>
+<p>외부화할 수 있다.</p>
+<p>하지만 이후 모델이 해당 능력을 더 안정적으로 내부화하면:</p>
+<ul>
+<li>implicit failure 감소</li>
+<li>scaffold의 marginal leverage 감소</li>
+<li>explicit state의 interference 증가</li>
+</ul>
+<p>가 발생할 수 있다.</p>
+<p>이 경우 scaffold를 축소하거나 제거한다.</p>
+<hr>
+<ol start="7">
+<li>Scaffold Lifecycle</li>
+</ol>
+<p>일반적인 scaffold의 생애주기는 다음과 같다.</p>
+<ol>
+<li>Implicit capability</li>
+</ol>
+<p>LLM이 해당 기능을 암묵적으로 수행한다.</p>
+<p>↓</p>
+<ol start="2">
+<li>Repeated failure observed</li>
+</ol>
+<p>장기적 또는 구조적 실패가 발견된다.</p>
+<p>↓</p>
+<ol start="3">
+<li>Capability extraction</li>
+</ol>
+<p>필요한 부분을 scaffold로 명시화한다.</p>
+<p>↓</p>
+<ol start="4">
+<li>Stabilization</li>
+</ol>
+<p>제품적으로 관리 가능한 능력이 된다.</p>
+<p>↓</p>
+<ol start="5">
+<li>Model improvement</li>
+</ol>
+<p>새 모델이 해당 능력을 더 안정적으로 내부 수행한다.</p>
+<p>↓</p>
+<ol start="6">
+<li>Re-evaluation</li>
+</ol>
+<p>7개 기준을 다시 적용한다.</p>
+<p>↓</p>
+<ol start="7">
+<li>Reduction / removal / absorption</li>
+</ol>
+<p>불필요해진 scaffold를 줄이고 능력을 다시 모델 내부에 맡긴다.</p>
+<hr>
+<ol start="8">
+<li>기능 추가와 모델 변경</li>
+</ol>
+<p>Kurume의 진화에는 서로 다른 두 방향이 존재한다.</p>
+<p>기능 추가</p>
+<p>주로 다음 방향이다.</p>
+<p>implicit / stochastic capability
+→ explicit / managed scaffold</p>
+<p>목적:</p>
+<ul>
+<li>안정화</li>
+<li>지속성 확보</li>
+<li>장기 분포 유지</li>
+<li>관찰 가능성</li>
+<li>제품적 통제</li>
+</ul>
+<hr>
+<p>모델 변경</p>
+<p>부분적으로 반대 방향일 수 있다.</p>
+<p>explicit scaffold
+→ stronger model capability</p>
+<p>새 모델이 과거 scaffold가 담당하던 능력을 충분히 흡수했다면 해당 scaffold는 축소 또는 제거 대상이 된다.</p>
+<p>따라서 Kurume의 기술 발전은 직선이 아니라 반복적인:</p>
+<p>externalization ↔ absorption</p>
+<p>과정이 될 수 있다.</p>
+<hr>
+<ol start="9">
+<li>평가 우선 원칙</li>
+</ol>
+<p>Scaffold 후보를 검토할 때 다음 순서로 판단한다.</p>
+<p>Gate A — Necessity</p>
+<ol>
+<li>실제 implicit failure가 있는가?</li>
+<li>그 실패가 제품적으로 중요한가?</li>
+</ol>
+<p>둘 중 하나라도 아니면 중단한다.</p>
+<p>Gate B — Fidelity</p>
+<ol start="3">
+<li>독립적 개념으로 구별 가능한가?</li>
+<li>충분히 충실하게 외부 표현 가능한가?</li>
+<li>원하는 방식과 강도로 다시 주입 가능한가?</li>
+</ol>
+<p>하나라도 심각하게 실패하면 적극적 외부화를 피한다.</p>
+<p>Gate C — Net System Benefit</p>
+<ol start="6">
+<li>왜곡·고착·복잡성 비용보다 이득이 큰가?</li>
+<li>현재 Kurume 전체의 해상도와 균형에 맞는가?</li>
+</ol>
+<p>통과한 경우에만 실제 scaffold 구현 후보가 된다.</p>
+<hr>
+<ol start="10">
+<li>구현 철학</li>
+</ol>
+<p>Kurume는 인간의 모든 심리적·사회적 요소를 명시적으로 모델링하는 것을 목표로 하지 않는다.</p>
+<p>목표는:</p>
+<p>«현재 모델이 암묵적으로 처리할 때 반복적으로 손실되는 것 중, 외부화를 통해 실제 제품 품질을 개선할 수 있는 최소한의 요소만 scaffold로 끄집어내는 것.»</p>
+<p>따라서 기본값은:</p>
+<p>implicit unless proven worth externalizing</p>
+<p>이다.</p>
+<p>외부화의 burden of proof는 scaffold 측에 있다.</p>
+<hr>
+<ol start="11">
+<li>최종 원칙</li>
+</ol>
+<p>Kurume에서 좋은 scaffold는 다음 조건을 만족한다.</p>
+<p>«필요해서 존재하고,
+원래 현상을 훼손하지 않으며,
+실제 행동을 개선하고,
+제품 전체와 균형을 이루며,
+더 좋은 모델이 등장하면 없어질 수 있어야 한다.»</p>
+<p>Kurume의 장기 경쟁력은 특정 scaffold의 영속성에 있지 않다.</p>
+<p>오히려 핵심은:</p>
+<p>«현재 모델의 능력 경계를 정확히 읽고, 필요한 능력만 밖으로 끄집어내며, 모델이 발전하면 다시 안으로 돌려보낼 수 있는 구조적 유연성이다.»</p>
+
+</article>
+</main>
+<footer class="site-footer">
+<p>&copy; mohokoto</p>
+</footer>
+</body>
+</html>
