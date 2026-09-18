@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI, Cognitive Possibility Frontier, and the Endogeneity of the Human–AI Gap · mohokoto</title>
+<!-- Machine-readable, not just a visual nicety - the V0 sync workflow
+     reads these to sort/display the notes index page it generates
+     (mohokoto.github.io#8, #9). "date" = first published, stable across
+     republishes; "updated" here = most recent (re)publish - NOT the
+     Draft's own updated field (last save), a different concept. -->
+<meta name="date" content="2026-09-18T09:25:25.149Z">
+<meta name="updated" content="2026-09-18T09:25:25.149Z">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+<nav aria-label="Primary">
+<a href="/#home" class="brand">mohokoto</a>
+<ul>
+<li><a href="/#about">About</a></li>
+<li><a href="/#projects">Projects</a></li>
+<li><a href="/notes/">Notes</a></li>
+<li><a href="/#links">Links</a></li>
+</ul>
+</nav>
+</header>
+<main id="main">
+<article>
+<a class="back-link" href="/notes/">&larr; Notes</a>
+<h1>AI, Cognitive Possibility Frontier, and the Endogeneity of the Human–AI Gap</h1>
+<p class="byline"><time datetime="2026-09-18T09:25:25.149Z">2026년 9월 18일</time></p>
+<p>Thesenpapier</p>
+<p>Forschungsstand: September 2026</p>
+<hr>
+<p>I. Ausgangsthese</p>
+<p>미래의 AI–human cognitive gap은 흔히 예상되는 것보다 상당히 덜 벌어질 수 있다.</p>
+<p>그 이유는 인간의 생물학적 두뇌가 AI와 비슷한 속도로 향상되기 때문이라는 것이 아니다.</p>
+<p>본 테제는 오히려 다음의 강한 조건을 허용한다.</p>
+<p>[
+B_H(t)\approx B_H(2026)
+]</p>
+<p>즉 인간의 working memory, 신경전달속도, 주의력, 두뇌 크기, 생물학적 수명 등의 기본적인 제약이 크게 변하지 않을 수 있다.</p>
+<p>그럼에도 불구하고</p>
+<p>[
+\mathcal F_H(t)
+\neq
+\mathcal F_H(2026)
+]</p>
+<p>일 수 있다.</p>
+<p>여기서 \mathcal F_H는 인간의 cognitive possibility frontier, 즉 주어진 조건에서 인간이 의미 있게 이해하고, 개념적으로 조작하고, 비판하고, 새로운 경우에 적용할 수 있는 인지적 가능공간을 뜻한다.</p>
+<p>본 테제의 핵심은 다음과 같다.</p>
+<p>«AI는 인간의 생물학적 제약을 제거하지 않고도, 그 제약 아래에서 무엇이 인간에게 인지 가능한가를 결정하는 조건 자체를 변화시킬 수 있다.»</p>
+<p>따라서 미래 AI와 인간 사이의 인지격차를 예측하면서 미래 인간을 현재 인간의 고정된 cognitive baseline으로 놓는 것은 체계적인 오류가 될 수 있다.</p>
+<hr>
+<p>II. Begriffsabgrenzung — 무엇을 주장하는 것이 아닌가</p>
+<p>본 테제의 경계는 엄격하게 유지되어야 한다.</p>
+<ol>
+<li>Cognitive deskilling은 본 테제와 같은 분석평면의 문제가 아니다</li>
+</ol>
+<p>AI 사용으로 인간이 암산을 덜 하게 되는가, 글쓰기를 덜 연습하는가, 기억을 외주화하는가, 비판적 사고를 덜 사용하는가 하는 문제는 중요하다.</p>
+<p>그러나 이것은 기본적으로 주어진 인지 가능공간 안에서 어떤 능력을 얼마나 실제로 사용하는가의 문제다.</p>
+<p>이를</p>
+<p>[
+p_t\in\mathcal F_H
+]</p>
+<p>라고 표현할 수 있다.</p>
+<p>반면 본 테제가 다루는 것은</p>
+<p>[
+\mathcal F_H
+]</p>
+<p>자체가 변화하는가이다.</p>
+<p>즉,</p>
+<p>«realized cognitive behavior의 변화»</p>
+<p>와</p>
+<p>«feasible cognitive space의 변화»</p>
+<p>는 동일한 변수가 아니다.</p>
+<p>한 인간이 일부 기존 기술을 잃으면서 동시에 과거 인간에게는 접근할 수 없었던 종류의 문제를 이해할 수 있게 되는 것도 논리적으로 가능하다.</p>
+<p>따라서 deskilling과 frontier expansion을 하나의 척도에서 빼고 더하여 “AI의 순인지효과”를 계산하는 것은 범주 오류에 가깝다.</p>
+<p>이 구별은 단순히 본 논의를 위해 새로 만든 것이 아니다. Menary와 Gillett는 cognitive tools를 단순히 인지부하를 줄이는 offloading으로 보는 접근이, 도구와 표상체계를 습득하면서 인지능력 자체가 변형되는 현상을 놓친다고 명시적으로 비판한다. 그들은 새로운 practice·symbol·artifact가 이전에는 불가능하거나 intractable했던 cognitive task를 가능하게 만드는 경우를 별도로 다룬다.</p>
+<p>본 테제는 이 두 번째 계보에 속한다.</p>
+<hr>
+<ol start="2">
+<li>Productivity thesis가 아니다</li>
+</ol>
+<p>AI를 사용하면 논문을 더 많이 쓰는가, 코드를 더 빨리 작성하는가, 한 사람이 더 많은 업무를 처리하는가는 본 테제의 직접적인 검증이 아니다.</p>
+<p>생산성이 열 배 증가해도 인간이 이해할 수 있는 conceptual space는 거의 그대로일 수 있다.</p>
+<p>반대로 생산성 증가가 크지 않아도 새로운 표현이나 개념체계가 등장함으로써 인간에게 가능한 사고의 종류가 바뀔 수 있다.</p>
+<hr>
+<ol start="3">
+<li>Human–AI team performance thesis도 아니다</li>
+</ol>
+<p>인간+AI 팀이 인간 단독이나 AI 단독보다 benchmark에서 더 높은 점수를 얻는가도 별개의 문제다.</p>
+<p>AI가 정답을 내고 인간이 그것을 전달하기만 하는 경우 team performance는 높지만 인간의 cognitive frontier는 전혀 움직이지 않았을 수 있다.</p>
+<p>본 테제에서 중요한 것은 인간이 그 구조를 인지적으로 획득할 수 있는가이다.</p>
+<hr>
+<ol start="4">
+<li>BCI·전뇌화·유전자개조를 전제하지 않는다</li>
+</ol>
+<p>그러한 기술은 별도의 강력한 인간증강 경로가 될 수 있지만 본 테제에는 필요하지 않다.</p>
+<p>오히려 더 강한 버전의 가정은 다음이다.</p>
+<p>«생물학적 인간을 그대로 둔다.»</p>
+<p>그럼에도 cognitive possibility frontier가 이동할 수 있는지를 묻는다.</p>
+<hr>
+<ol start="5">
+<li>Alignment thesis가 아니다</li>
+</ol>
+<p>AI가 인간에게 우호적인가, 인간가치를 최적화하는가 역시 다른 문제다.</p>
+<p>AI가 인간 cognitive frontier를 변화시키는 것은 AI의 목적일 필요조차 없다.</p>
+<p>본 논의에서는 그것이 AI가 사회의 epistemic environment를 바꾸면서 발생하는 side effect일 가능성까지 포함한다.</p>
+<hr>
+<p>III. Grundbegriff — Cognitive Possibility Frontier</p>
+<p>인간의 생물학적 구조를 B, 인간이 놓인 epistemic environment를 E라고 하자.</p>
+<p>[
+\mathcal F_H=\mathcal F(B,E)
+]</p>
+<p>로 정의한다.</p>
+<p>E에는 적어도 다음이 포함된다.</p>
+<ul>
+<li>이용 가능한 표상체계</li>
+<li>개념어휘</li>
+<li>외부기억 구조</li>
+<li>탐색 및 선별 구조</li>
+<li>문제 분해 방식</li>
+<li>시각화와 기호체계</li>
+<li>다른 지식영역과의 번역 구조</li>
+<li>검증수단</li>
+<li>사회적·제도적 지식 인프라</li>
+<li>AI가 생성하는 중간 abstraction</li>
+</ul>
+<p>여기서 어떤 task가 \mathcal F_H 안에 있다는 것은 단순히 AI의 답을 받아 적을 수 있다는 뜻이 아니다.</p>
+<p>적어도 인간이 적절한 abstraction level에서</p>
+<ol>
+<li>핵심 구조를 파악하고,</li>
+<li>주요 관계를 조작하며,</li>
+<li>다른 사례로 transfer하고,</li>
+<li>반례나 오류 가능성을 이해하고,</li>
+<li>자신의 판단에 통합할 수 있어야 한다.</li>
+</ol>
+<p>즉 본 테제는 delegation frontier가 아니라 understanding frontier를 다룬다.</p>
+<hr>
+<p>IV. These 1 — 인간의 인지한계를 두뇌 내부에만 위치시키는 것은 이미 역사적으로 부정확하다</p>
+<p>현대 인지과학에는 인간 cognition을 internal brain computation만으로 설명하지 않는 긴 계보가 존재한다.</p>
+<p>Zhang과 Norman의 distributed representation 연구는 cognitive task가 내부 표현과 외부 표현의 결합으로 구성된다고 분석했다.</p>
+<p>Menary의 cognitive integration 이론은 symbolic representations와 이를 조작하는 문화적 practice가 인간의 생물학적 capacities 위에 결합하여 새로운 cognitive capacities를 만들어낸다고 본다.</p>
+<p>특히 수학적 인지에 관한 연구에서는 외부 기호체계가 단순히 이미 존재하는 내부 능력을 보조하는 것이 아니라, 이전에는 존재하지 않았던 수학적 cognitive capacity의 구성요소가 될 수 있다는 논의가 발전해왔다.</p>
+<p>따라서</p>
+<p>[
+B=\text{fixed}
+]</p>
+<p>로부터</p>
+<p>[
+\mathcal F(B,E)=\text{fixed}
+]</p>
+<p>를 추론할 수 없다.</p>
+<p>이것이 본 테제의 가장 단단한 선행기반이다.</p>
+<hr>
+<p>V. These 2 — 인간의 cognitive frontier는 역사적으로 이미 외부 인지환경과 함께 이동해왔다</p>
+<p>문자, 수학적 notation, 지도, 도표, 좌표계, 인쇄술, 과학적 표준화는 단순히 인간에게 기존 일을 빠르게 수행하도록 해준 것이 아니다.</p>
+<p>그것들은 인간이 접근할 수 있는 problem space를 변경했다.</p>
+<p>Engelbart는 이미 1962년에 human augmentation을 인간의 basic biological abilities 변화로 한정하지 않았다. 그는 language, artifacts, methods, training을 포함하는 전체 시스템이 인간에게 과거에는 지나치게 복잡했던 상황을 이해하게 하고, 이전에는 풀기 어려웠던 문제를 다룰 수 있게 할 수 있다고 보았다.</p>
+<p>더 놀랍게도 Engelbart는 단일 도구개선보다 regenerative interaction을 중요하게 보았다. 새로운 표상·개념·조작방법이 생기면 그 위에 다시 더 높은 수준의 능력이 형성되어, 기존 인간에게는 구성 자체가 불가능했던 새로운 개념과 process가 가능해질 수 있다고 예측했다.</p>
+<p>Licklider 역시 1960년에 컴퓨터의 중요한 역할을 이미 공식화된 문제를 계산하는 데 그치지 않고 formulative thinking 자체를 가능하게 하는 것으로 보았다.</p>
+<p>따라서 AI 이전에도 cognitive possibility frontier의 환경의존성이라는 아이디어의 강한 선행계보가 존재한다.</p>
+<hr>
+<p>VI. These 3 — AI의 질적 차이는 epistemic environment 자체를 동적으로 생성할 수 있다는 데 있다</p>
+<p>기존 cognitive artifacts는 대부분 사람이 미리 구축해놓은 비교적 고정된 환경이었다.</p>
+<p>책은 독자의 이해 상태에 따라 새로운 notation을 발명하지 않는다.</p>
+<p>좌표계는 문제에 따라 스스로 다시 설계되지 않는다.</p>
+<p>도서관은 사용자의 conceptual bottleneck을 실시간으로 분석해 새로운 abstraction hierarchy를 생성하지 않는다.</p>
+<p>AI는 원리적으로 이와 다르게 작동할 수 있다.</p>
+<p>AI는 특정 인간, 특정 문제, 특정 순간에 맞추어</p>
+<p>[
+E\rightarrow E&#39;
+]</p>
+<p>를 동적으로 수행할 수 있다.</p>
+<p>즉 cognitive tool 하나를 제공하는 것이 아니라 cognitive environment를 생성하는 시스템이 될 수 있다.</p>
+<p>2026년 Naser는 이를 매우 가까운 언어로 공식화했다. 그는 AI를 단순 tool이 아니라 epistemic infrastructure로 보아야 하며, AI의 중요 효과는 사람이 무엇을 할 수 있는지만이 아니라 무엇을 conceive, discover, understand할 수 있는지를 구성하는 데 있다고 주장한다. 현 AI 거버넌스가 “AI가 무엇을 하는가”에 집중하면서 “무엇을 생각 가능하게 만드는가”를 놓친다고 지적한다.</p>
+<p>이는 본 테제의 constitutive layer와 매우 가까운 2026년의 직접적 선행이다.</p>
+<hr>
+<p>VII. These 4 — AI는 cognitive tool에서 epistemic infrastructure로 이동할 가능성이 있다</p>
+<p>Naser가 제시하는 tool/infrastructure 구별은 본 테제에 특히 중요하다.</p>
+<p>Tool은 주어진 목적을 더 잘 수행하게 한다.</p>
+<p>Infrastructure는 어떤 활동과 목적이 가능해지는지의 배경조건을 구성한다.</p>
+<p>그의 정의에서 epistemic infrastructure는 인간이 무엇을 conceive, discover, understand할 수 있는지를 형성하는 sociotechnical system이다.</p>
+<p>이 구별을 본 테제의 언어로 옮기면</p>
+<p>[
+\text{tool effect}:p\rightarrow p&#39;
+]</p>
+<p>인 반면,</p>
+<p>[
+\text{infrastructural effect}:\mathcal F\rightarrow\mathcal F&#39;
+]</p>
+<p>에 가깝다.</p>
+<p>바로 이 지점에서 AI 사용의 단기적인 “효율”과 AI 시대의 장기적인 “인지 가능조건”은 분리된다.</p>
+<hr>
+<p>VIII. These 5 — AI 시대의 epistemic niche construction이라는 직접적인 연구방향도 등장하고 있다</p>
+<p>2026년 Bodong Chen은 epistemic niche construction을 GenAI 분석에 직접 적용했다.</p>
+<p>그의 핵심 문제설정은 GenAI가 인간이 생각하고 배우고 지식을 생산하는 epistemic environment를 재구조화한다는 것이다. 그는 특히 generativity, representational opacity, 인간과 AI의 substrate asymmetry가 이전 cognitive technology와 다른 feedback을 만들어낼 수 있다고 본다. 다만 이 논문은 현재 SSRN preprint라는 점을 구별할 필요가 있다.</p>
+<p>같은 해 epistemic co-agency 연구 역시 GenAI 환경에서 인간의 learning을 단순 task efficiency가 아니라 epistemic transformation의 문제로 접근하기 시작했다.</p>
+<p>Bianchini 역시 AI가 더 이상 epistemically neutral한 tool로 볼 수 없으며 인간의 knowledge production과 현실을 인지하는 방식을 재구성한다고 논한다.</p>
+<p>따라서 2025–26년에는 AI를 “인지환경을 구성하는 기술”로 보는 여러 독립적인 연구흐름이 동시에 나타나고 있다.</p>
+<hr>
+<p>IX. These 6 — 하지만 현재 연구는 아직 대부분 &#39;gap dynamics&#39;까지 가지 않는다</p>
+<p>여기서 본 테제의 독자적인 연결이 시작된다.</p>
+<p>기존의 cognitive integration 문헌은</p>
+<p>«환경과 cognitive tools가 인간 cognition을 변화시킨다»</p>
+<p>를 다룬다.</p>
+<p>최근 AI epistemic infrastructure 문헌은</p>
+<p>«AI가 인간의 epistemic environment를 구성할 수 있다»</p>
+<p>를 다룬다.</p>
+<p>Human–AI coevolution 문헌은</p>
+<p>«인간과 알고리즘이 반복적으로 서로를 변화시킨다»</p>
+<p>는 feedback을 연구대상으로 삼기 시작했다.</p>
+<p>그러나 아직 이들을 다음 장기예측 문제와 명시적으로 결합하는 연구는 상대적으로 약하다.</p>
+<p>«그렇다면 미래 AI–human cognitive gap을 계산할 때 인간 cognitive frontier를 왜 고정변수로 놓는가?»</p>
+<p>이것이 본 테제의 핵심적인 추가 단계다.</p>
+<hr>
+<p>X. These 7 — Static Human Baseline은 장기 gap forecast를 체계적으로 왜곡할 수 있다</p>
+<p>통상적인 사고실험에서는 암묵적으로</p>
+<p>[
+\mathcal A(t)\uparrow\uparrow
+]</p>
+<p>하는 동안</p>
+<p>[
+\mathcal F_H(t)\approx\mathcal F_H(2026)
+]</p>
+<p>라고 놓는다.</p>
+<p>여기서 \mathcal A(t)는 AI가 접근 가능한 cognitive/problem space다.</p>
+<p>그러면 당연히 격차는 폭발한다.</p>
+<p>그러나</p>
+<p>[
+E(t)=E[A(t)]
+]</p>
+<p>즉 인간의 epistemic environment 자체가 AI capability의 함수라면,</p>
+<p>[
+\mathcal F_H(t)=\mathcal F(B_H,E[A(t)])
+]</p>
+<p>가 된다.</p>
+<p>AI의 향상은 한쪽 항만 변화시키지 않는다.</p>
+<p>그것은 동시에 인간 cognition의 조건을 변화시키는 입력이다.</p>
+<p>따라서 정적인 인간 baseline에서 계산한</p>
+<p>[
+G_{\text{static}}
+]</p>
+<p>과 실제 AI-conditioned environment에서의</p>
+<p>[
+G_{\text{effective}}
+]</p>
+<p>는 상당히 다른 궤적을 보일 수 있다.</p>
+<p>본 테제는</p>
+<p>[
+G_{\text{effective}}\to0
+]</p>
+<p>을 주장하지 않는다.</p>
+<p>더 제한적으로,</p>
+<p>«G_{\text{effective}}가 G_{\text{static}}보다 훨씬 느리게 증가할 수 있으며, 일부 영역에서는 일정 범위에 머물거나 일시적으로 감소할 가능성도 배제할 수 없다»</p>
+<p>고 주장한다.</p>
+<hr>
+<p>XI. These 8 — 핵심 메커니즘은 &#39;AI가 설명을 잘한다&#39;보다 넓다</p>
+<p>본 테제를 tutoring이나 explanation improvement로 축소해서는 안 된다.</p>
+<p>가능한 mechanism은 적어도 다음과 같은 종류다.</p>
+<p>Representational transformation</p>
+<p>AI가 인간에게 적합한 새로운 변수, 좌표계, notation 또는 abstraction을 발견한다.</p>
+<p>복잡했던 문제가 표현을 바꿈으로써 cognitively tractable해진다.</p>
+<p>Search-space transformation</p>
+<p>AI가 거대한 hypothesis space를 인간이 의미 있게 비교할 수 있는 소수의 구조로 변환한다.</p>
+<p>인간은 AI가 수행한 계산을 재현하지 않더라도 그 결과로 드러난 구조적 선택지를 이해할 수 있다.</p>
+<p>Concept formation</p>
+<p>기존 인간언어에 없는 machine-discovered structure에 대응하는 새로운 개념을 인간에게 제공할 수 있다.</p>
+<p>Cross-domain translation</p>
+<p>서로 다른 전문분야의 개념구조 사이에 인간이 직접 만들기 어려운 mapping을 만들어 새로운 통합적 reasoning을 가능하게 한다.</p>
+<p>Dynamic abstraction</p>
+<p>동일한 구조를 인간의 지식상태에 따라 여러 abstraction level로 실시간 재구성한다.</p>
+<p>Epistemic niche construction</p>
+<p>이러한 변화가 개인 interaction을 넘어 notation, workflow, research practice, 교육과정, institution에 축적되면 새로운 cultural cognitive environment가 된다.</p>
+<p>마지막 메커니즘이 중요하다.</p>
+<p>AI가 사라지면 즉시 없어지는 개인적 도움뿐 아니라 AI가 만들어낸 새로운 cognitive artifact가 문화적으로 축적될 가능성이 있기 때문이다.</p>
+<hr>
+<p>XII. These 9 — 이미 작은 규모의 실증적 선례가 존재한다</p>
+<p>이 강한 테제 전체가 실증된 것은 아니다.</p>
+<p>그러나 mechanism의 prototype은 이미 관찰된다.</p>
+<p>2021년 Nature의 Davies et al. 연구에서는 machine learning이 인간 수학자가 직접 파악하기 어려운 수학적 객체들의 관계를 탐색하고, attribution을 통해 어떤 구조가 중요한지를 드러냄으로써 인간 수학자의 intuition을 유도했다. 그 과정에서 knot theory와 representation theory에서 실제 새로운 수학적 결과가 나왔다.</p>
+<p>이 사례의 중요한 점은 AI가 단지 증명을 대신했다는 것이 아니다.</p>
+<p>AI의 탐색 결과가 인간 수학자가 볼 새로운 구조를 드러내는 중간 표현으로 변환되었고, 인간이 그것을 다시 자신의 mathematical reasoning에 통합했다.</p>
+<p>이는</p>
+<p>[
+\text{machine search}
+\rightarrow
+\text{representation}
+\rightarrow
+\text{human conceptual insight}
+]</p>
+<p>라는 본 테제의 국소적인 prototype이다.</p>
+<hr>
+<p>XIII. These 10 — AI가 새로운 &#39;좌표계&#39;를 발견한다는 것은 문자 그대로의 연구문제가 되고 있다</p>
+<p>2026년 Nature Communications의 Vinuesa, Brunton, Mengaldo는 AI가 인간의 기존 이론으로 직접 접근하기 어려운 고차원 관계를 학습하고, XAI가 그 내부 representation을 인간 지식으로 번역할 가능성을 논한다.</p>
+<p>특히 이들은 과학발견에서 적절한 coordinate system을 발견하는 것 자체가 이해의 핵심임을 강조하고, AI의 representation learning이 그러한 effective coordinates를 찾아낼 수 있다고 본다.</p>
+<p>이는 본 테제에 매우 직접적인 함의를 가진다.</p>
+<p>인간의 계산능력을 높이지 않더라도,</p>
+<p>[
+\text{hard problem in }R_1
+]</p>
+<p>을</p>
+<p>[
+\text{tractable problem in }R_2
+]</p>
+<p>로 바꾸는 representation R_2가 발견되면 인간 cognitive frontier가 움직일 수 있기 때문이다.</p>
+<p>Copernican coordinates, logarithms, calculus notation, vector notation과 같은 역사적 변화가 한때 수행했던 역할을 AI가 훨씬 더 빠르고 문제특이적으로 수행할 가능성을 생각할 수 있다.</p>
+<hr>
+<p>XIV. These 11 — 이 과정의 병목은 raw AI capability와 별개의 &#39;knowledge transfer capability&#39;다</p>
+<p>이 지점에서 본 테제와 같은 평면에 있는 실제 제한조건이 나타난다.</p>
+<p>AI가 어떤 것을 알아냈다고 해서 인간이 그것을 이해할 수 있다는 보장은 없다.</p>
+<p>2025년 NeurIPS의 KITE 연구는 118명을 대상으로 model reasoning이 인간에게 얼마나 전달되는지를 별도로 측정했고, 높은 model benchmark performance가 더 높은 human knowledge transfer로 일관되게 이어지지 않는다는 결과를 얻었다.</p>
+<p>저자들은 knowledge transfer가 독립적으로 최적화되어야 할 별개의 capability라고 결론낸다.</p>
+<p>따라서</p>
+<p>[
+A(t)\uparrow
+]</p>
+<p>라고 해서 자동으로</p>
+<p>[
+\mathcal F_H(t)\uparrow
+]</p>
+<p>하는 것은 아니다.</p>
+<p>두 변수 사이에는 최소한</p>
+<p>[
+T(t)=\text{machine-to-human cognitive transfer capacity}
+]</p>
+<p>라는 매개항이 필요하다.</p>
+<p>본 테제의 장기적 성립 여부는 A(t)뿐 아니라 T(t)가 얼마나 발전하는가에 달려 있다.</p>
+<hr>
+<p>XV. These 12 — 인간의 기존 vocabulary 자체가 병목이 될 수 있으며, 그것도 변할 수 있다</p>
+<p>Hewitt, Geirhos, Kim은 ICML 2025 position paper에서 인간과 machine의 concepts가 다를 수 있기 때문에 기존 인간 vocabulary만으로 AI를 이해하려는 것이 불충분할 수 있다고 주장한다.</p>
+<p>그들은 한 방향으로는 인간개념을 machine에게 가르치고, 다른 방향으로는 machine concept를 인간이 새롭게 학습할 수 있도록 새로운 단어와 abstraction을 만드는 것을 제안한다.</p>
+<p>이 관점은 본 테제에서 중요하다.</p>
+<p>현재 인간의 vocabulary가 machine cognition을 표현하지 못한다는 사실은 인간 cognitive frontier의 영구적 한계를 의미하지 않는다.</p>
+<p>오히려</p>
+<p>[
+V_H(t)
+]</p>
+<p>즉 인간의 개념어휘 자체가 변화할 수 있기 때문이다.</p>
+<p>AI 시대의 gap closing은 기존 인간언어로 AI를 설명하는 작업만이 아니라 인간에게 새로운 cognitive vocabulary를 만들어주는 작업이 될 수도 있다.</p>
+<hr>
+<p>XVI. These 13 — 진정한 반대 가설은 deskilling이 아니라 &#39;irreducibility&#39;다</p>
+<p>본 테제에 대한 가장 강한 반론은</p>
+<p>«사람들이 AI 때문에 게을러질 것이다»</p>
+<p>가 아니다.</p>
+<p>더 근본적인 반론은 다음이다.</p>
+<p>«AI가 발견하는 일부 구조는 인간의 biological architecture에 맞는 유한한 abstraction으로 압축될 수 없을지도 모른다.»</p>
+<p>Vinuesa et al.도 모든 복잡계가 단순하고 sparse하거나 low-dimensional한 표현으로 환원되는 것은 아니며, 적절한 simplifying coordinate system이 존재하지 않거나 발견되지 않을 수 있다고 명시한다.</p>
+<p>이것이 본 테제와 정확히 같은 평면의 제한조건이다.</p>
+<p>만약 frontier AI가 활용하는 핵심 representations가 인간에게 가능한 어떤 compositional abstraction으로도 변환되지 않는다면</p>
+<p>[
+T(t)
+]</p>
+<p>에는 구조적 상한이 존재할 수 있다.</p>
+<p>그 경우 raw capability gap은 인간 cognitive frontier의 이동보다 훨씬 빠르게 증가할 것이다.</p>
+<hr>
+<p>XVII. These 14 — 또 하나의 경쟁 가설은 capability가 translation보다 훨씬 빨리 성장하는 경우다</p>
+<p>Horvitz와 West는 2026년 Science에서 AI capability가 빠르게 증가하면서 인간의 system understanding이 뒤처질 수 있고, 의미 있게 이해하고 통제할 수 있는 기회의 창이 좁아질 가능성을 경고했다.</p>
+<p>이를 본 테제의 변수로 번역하면</p>
+<p>[
+\frac{dA}{dt}
+\gg
+\frac{dT}{dt}
+]</p>
+<p>인 경우다.</p>
+<p>이 경우 AI가 epistemic environment를 바꿀 능력 자체는 커지더라도, 인간에게 접근 가능한 형태로 변환하는 capacity가 따라가지 못하여 effective gap이 빠르게 벌어질 수 있다.</p>
+<p>따라서 본 테제는 낙관적 필연성을 주장하지 않는다.</p>
+<p>그것은 두 성장률의 경쟁에 관한 가설이다.</p>
+<hr>
+<p>XVIII. These 15 — AI는 human cognitive frontier를 &#39;확장&#39;만 하는 것이 아니라 &#39;변형&#39;할 수 있다</p>
+<p>더 엄밀하게는</p>
+<p>[
+\mathcal F_{t+1}\supset\mathcal F_t
+]</p>
+<p>가 항상 성립한다고 가정해서도 안 된다.</p>
+<p>AI가 epistemic infrastructure가 된다면 어떤 종류의 사고는 새롭게 가능해지고, 다른 종류의 사고는 상대적으로 inaccessible해질 수 있다.</p>
+<p>따라서 기본 개념은 frontier expansion보다</p>
+<p>«frontier transformation»</p>
+<p>이어야 한다.</p>
+<p>본 테제의 더 제한적인 gap-closing hypothesis는 그 transformation 중 상당한 부분이 AI와 인간 사이의 relevant cognitive distance를 줄이는 방향으로 작용할 가능성을 말한다.</p>
+<p>Naser의 epistemic infrastructure 논의 역시 이러한 infrastructure가 가능공간을 넓힐 뿐 아니라 무엇이 보이고 보이지 않는지를 구성할 수 있음을 강조한다.</p>
+<p>즉 본 테제는 “AI는 인간을 반드시 더 똑똑하게 만든다”가 아니다.</p>
+<p>«AI가 인간 cognition의 feasible space를 endogenous하게 만든다»</p>
+<p>가 더 근본적인 명제다.</p>
+<hr>
+<p>XIX. Drei Ebenen — 분석틀</p>
+<p>앞으로 이 문제를 다룰 때 다음 세 분석층을 혼합해서는 안 된다.</p>
+<p>Ebene A — Constitutive Layer</p>
+<p>질문:</p>
+<p>«AI가 인간에게 무엇이 인지 가능한지를 결정하는 조건을 어떻게 바꾸는가?»</p>
+<p>대상:</p>
+<p>[
+\mathcal F(B,E)
+]</p>
+<p>관련문헌:</p>
+<ul>
+<li>distributed representations</li>
+<li>cognitive integration</li>
+<li>enculturation</li>
+<li>cognitive niche construction</li>
+<li>extended mathematical cognition</li>
+<li>epistemic infrastructure</li>
+<li>AI-mediated epistemic niches</li>
+<li>representational transformation</li>
+</ul>
+<p>이 층이 본 테제의 핵심이다.</p>
+<hr>
+<p>Ebene B — Realization Layer</p>
+<p>질문:</p>
+<p>«주어진 가능공간 안에서 인간이 실제로 어떤 능력을 사용하고 얼마나 숙련되는가?»</p>
+<p>여기에는</p>
+<ul>
+<li>offloading</li>
+<li>deskilling</li>
+<li>cognitive laziness</li>
+<li>overreliance</li>
+<li>learning gains</li>
+<li>individual productivity</li>
+</ul>
+<p>등이 포함된다.</p>
+<p>이들은 독립적으로 중요한 연구대상이지만, 그 자체로 Ebene A의 찬반 증거가 아니다.</p>
+<p>단, 장기적으로 이들이 다시 E나 인간의 frontier 형성과정에 영향을 준다는 별도의 causal mechanism이 입증된다면 두 층은 연결될 수 있다.</p>
+<hr>
+<p>Ebene C — Gap-Dynamics Layer</p>
+<p>질문:</p>
+<p>«\mathcal F_H 자체가 AI 발전에 따라 이동한다면, AI–human cognitive gap의 시간경로는 어떻게 바뀌는가?»</p>
+<p>바로 이 층에서 본 논문의 핵심 가설이 등장한다.</p>
+<hr>
+<p>XX. Gap Closing Hypothesis</p>
+<p>AI의 cognitive capability space를 \mathcal A(t)라고 하자.</p>
+<p>기존의 static-human forecasting은 사실상</p>
+<p>[
+D[\mathcal A(t),\mathcal F_H(B,E_0)]
+]</p>
+<p>를 추적한다.</p>
+<p>그러나 AI가 인간의 epistemic environment를 변화시키면 실제 관심대상은</p>
+<p>[
+D[\mathcal A(t),\mathcal F_H(B,E_{AI}(t))]
+]</p>
+<p>가 된다.</p>
+<p>여기서 D는 단순한 하나의 IQ 차이가 아니라 두 cognitive possibility spaces 사이의 multidimensional distance를 뜻한다.</p>
+<p>Gap-Closing Hypothesis</p>
+<p>«AI capability가 증가함에 따라 AI가 인간 cognition의 조건을 변화시키는 능력 역시 증가한다면, biologically fixed human을 가정하더라도 effective human cognitive frontier는 내생적으로 이동할 수 있으며, 따라서 effective AI–human cognitive gap은 static-human model이 예측하는 gap보다 상당히 작을 수 있다.»</p>
+<p>이 가설은 gap이 사라진다고 주장하지 않는다.</p>
+<p>또한 인간이 AI의 raw computation을 따라잡는다고 주장하지 않는다.</p>
+<p>더 정확한 명제는</p>
+<p>[
+D_{\mathrm{effective}}(t)
+&lt;
+D_{\mathrm{static}}(t)
+]</p>
+<p>가 예상보다 훨씬 강하게 성립할 수 있다는 것이다.</p>
+<hr>
+<p>XXI. Side-Effect Thesis</p>
+<p>특히 중요한 것은 이 과정이 인간 cognitive augmentation을 목표로 한 별도 프로젝트일 필요가 없다는 점이다.</p>
+<p>AI가</p>
+<ul>
+<li>과학문제를 풀고</li>
+<li>코드를 작성하고</li>
+<li>정보를 검색하고</li>
+<li>연구를 자동화하고</li>
+<li>모델을 구축하고</li>
+<li>사람들과 의사소통하는</li>
+</ul>
+<p>과정에서 새로운 representations, concepts, abstraction practices, research workflows가 사회에 축적될 수 있다.</p>
+<p>따라서</p>
+<p>[
+AI\ deployment
+\rightarrow
+E_{AI}
+\rightarrow
+\mathcal F_H&#39;
+]</p>
+<p>라는 효과는 AI 개발의 side effect로 발생할 수 있다.</p>
+<p>역사적으로도 cognitive technology의 가장 큰 효과가 처음 의도된 기능과 일치하지 않는 경우가 많았다.</p>
+<p>AI 역시 처음에는 “일을 대신하는 기술”로 도입되었지만, 장기적으로 더 중요한 변화는</p>
+<p>«그 기술과 함께 사는 인간이 무엇을 이해할 수 있는 존재가 되었는가»</p>
+<p>일 수 있다.</p>
+<hr>
+<p>XXII. 현재 문헌에서의 위치</p>
+<p>관련 연구표면을 전수적으로 분류하면 다음과 같은 지도가 나온다.</p>
+<p>연구계보| 이미 존재하는 핵심 통찰| 본 테제와의 관계
+External representation / distributed cognition| 외부표현은 cognitive task의 구조를 변화시킨다| 기반
+Extended cognition| cognition의 기능적 경계가 두개골과 일치하지 않을 수 있다| 기반
+Cognitive integration / enculturation| 문화적 도구가 새로운 cognitive capacities를 만든다| 매우 강한 기반
+Cognitive niche construction| 인간이 만든 환경이 다시 인간 cognition을 구성한다| 매우 강한 기반
+Engelbart / intelligence augmentation| 새로운 도구·표상·방법의 regenerative interaction으로 더 높은 cognitive capability가 발생할 수 있다| 직접적 역사적 선행
+Human–AI coevolution| 인간과 AI가 feedback을 통해 서로 변화한다| 인접
+Epistemic infrastructure| AI가 무엇이 생각 가능한지를 구성할 수 있다| 가장 가까운 최신 conceptual precedent
+Epistemic niche construction with GenAI| AI가 인간의 epistemic environment를 재구성한다| 매우 가까운 최신 연구
+Machine→human knowledge transfer| AI capability와 인간에게 전달 가능한 knowledge는 별개의 변수다| 핵심 mechanism
+XAI / AI for scientific understanding| machine representation을 인간 지식으로 변환할 수 있는가| 핵심 mechanism
+Machine concepts / new vocabulary| 인간의 conceptual vocabulary 자체가 확장될 수 있다| 핵심 mechanism
+AI–human gap forecasting| 대부분 AI capability 변화에 초점| 본 테제의 연결이 상대적으로 비어 있음</p>
+<hr>
+<p>XXIII. Originalitätsposition</p>
+<p>현재 문헌을 기준으로 본 테제의 originality를 과장해서는 안 된다.</p>
+<p>다음 명제들은 이미 선행연구가 충분히 존재한다.</p>
+<p>«인간 cognition은 환경과 cognitive artifacts에 의해 변형될 수 있다.»</p>
+<p>«새로운 symbolic system은 인간에게 새로운 cognitive capacities를 줄 수 있다.»</p>
+<p>«AI가 epistemic environment 또는 infrastructure가 될 수 있다.»</p>
+<p>«인간과 AI가 상호작용하면서 함께 변화할 수 있다.»</p>
+<p>따라서 이것들을 본 테제의 새로운 발견이라고 주장할 수 없다.</p>
+<p>그러나 현재 확인한 문헌에서는 상대적으로 덜 발달한 연결이 존재한다.</p>
+<p>«AI가 인간 cognitive possibility frontier를 변화시킨다는 사실을 미래 AI–human capability-gap forecasting의 누락된 내생변수로 넣는 것.»</p>
+<p>즉 originality가 있다면 개별 구성요소보다 다음 synthesis에 있다.</p>
+<p>[
+AI\ capability
+\rightarrow
+AI\text{-shaped epistemic conditions}
+\rightarrow
+human cognitive frontier
+\rightarrow
+AI-human effective gap
+]</p>
+<p>그리고 이로부터 나오는 비직관적인 예측,</p>
+<p>«AI가 매우 빠르게 발전하더라도 인간과의 effective cognitive gap은 현재의 static-human forecasts가 암시하는 것보다 훨씬 덜 벌어질 수 있다»</p>
+<p>가 본 테제의 가장 특이한 부분이다.</p>
+<p>이는 현재 확인된 연구만으로 입증된 명제가 아니다.</p>
+<p>바로 그렇기 때문에 독립적인 연구가설로서 의미가 있다.</p>
+<hr>
+<p>XXIV. Was wäre eine echte empirische Prüfung?</p>
+<p>현재의 AI productivity benchmark나 tutoring experiment만으로는 본 테제를 검증할 수 없다.</p>
+<p>직접적인 검증은 frontier-crossing을 측정해야 한다.</p>
+<p>예를 들어 현재 인간 전문가가 독립적으로는 의미 있게 conceptualize하기 어려운 문제군을 선정한다.</p>
+<p>AI는 단순히 답을 제공해서는 안 된다.</p>
+<p>대신 여러 형태의</p>
+<ul>
+<li>representation</li>
+<li>conceptual vocabulary</li>
+<li>intermediate abstraction</li>
+<li>coordinate system</li>
+<li>decomposition</li>
+</ul>
+<p>을 만들어준다.</p>
+<p>그 후 인간이</p>
+<ol>
+<li>이전에 inaccessible했던 핵심 구조를 설명할 수 있는지,</li>
+<li>새로운 경우에 이를 transfer할 수 있는지,</li>
+<li>AI가 제시한 잘못된 변형을 찾아낼 수 있는지,</li>
+<li>반례와 boundary conditions를 reason할 수 있는지,</li>
+<li>AI가 처음 제시하지 않은 새로운 추론을 그 conceptual structure 위에서 수행할 수 있는지</li>
+</ol>
+<p>를 측정해야 한다.</p>
+<p>이것은 “AI를 사용해 답을 맞혔는가?”와 전혀 다른 실험이다.</p>
+<hr>
+<p>XXV. 두 종류의 frontier expansion도 구별해야 한다</p>
+<p>System-dependent frontier expansion</p>
+<p>AI가 계속 존재하는 동안 인간+epistemic environment 안에서 인간이 새로운 것을 이해할 수 있다.</p>
+<p>[
+\mathcal F(B,E_{AI})</p>
+<p>«»</p>
+<p>\mathcal F(B,E_0)
+]</p>
+<p>본 테제에는 이것만으로 충분하다.</p>
+<p>인간의 머릿속에 모든 것이 internalize될 필요는 없다.</p>
+<p>Enculturated frontier expansion</p>
+<p>AI가 만들어낸 notation, concept, method가 문화적으로 내재화되어 AI를 제거한 뒤에도 인간에게 새로운 cognitive capacity가 남는다.</p>
+<p>이것은 더 강한 형태다.</p>
+<p>문자나 수학 notation의 역사와 비슷한 방식이다.</p>
+<p>AI 시대에 두 번째 현상까지 얼마나 발생할지는 현재 거의 연구되지 않았다.</p>
+<hr>
+<p>XXVI. Falsifikationsbedingungen</p>
+<p>본 테제는 다음과 같은 결과가 누적되면 강하게 약화된다.</p>
+<ol>
+<li>Transfer saturation</li>
+</ol>
+<p>AI capability가 계속 증가하지만 machine-to-human transfer capacity가 이른 시점에서 거의 포화된다.</p>
+<p>[
+A(t)\uparrow\uparrow,\qquad T(t)\approx constant
+]</p>
+<ol start="2">
+<li>Representational irreducibility</li>
+</ol>
+<p>frontier AI가 사용하는 중요한 cognitive structures의 대부분이 인간이 조작 가능한 compositional representation으로 변환될 수 없다.</p>
+<ol start="3">
+<li>Verification collapse</li>
+</ol>
+<p>인간이 설명을 이해하는 듯 보이더라도 frontier 영역에서 독립적으로 오류·반례·경계조건을 판정하지 못한다.</p>
+<ol start="4">
+<li>No frontier crossing</li>
+</ol>
+<p>AI는 인간의 속도와 생산성을 크게 올리지만, 장기간 관찰해도 인간이 이해 가능한 problem class 자체에는 의미 있는 변화가 없다.</p>
+<ol start="5">
+<li>Capability divergence dominates transformation</li>
+</ol>
+<p>[
+\frac{dD_{\mathrm{AI}}}{dt}
+\gg
+\frac{d\mathcal F_H}{dt}
+]</p>
+<p>가 지속되어 AI가 인간의 epistemic environment를 변화시키는 속도보다 machine cognitive space가 훨씬 더 빨리 확장한다.</p>
+<p>이 경우 static-human forecast는 방향적으로 크게 틀리지 않을 수 있다.</p>
+<hr>
+<p>XXVII. Forschungsprogramm</p>
+<p>따라서 향후 연구의 핵심 변수는 단순한</p>
+<p>[
+AI\ benchmark
+]</p>
+<p>도,</p>
+<p>[
+human\ productivity
+]</p>
+<p>도 아니다.</p>
+<p>적어도 다음 세 함수를 동시에 추적해야 한다.</p>
+<p>[
+A(t)=\text{AI cognitive capability}
+]</p>
+<p>[
+T(t)=\text{AI→human cognitive translation/transfer capability}
+]</p>
+<p>[
+\mathcal F_H(t)</p>
+<p>\mathcal F[B,E(A,T,\text{culture},\text{institutions})]
+]</p>
+<p>그 후</p>
+<p>[
+D[\mathcal A(t),\mathcal F_H(t)]
+]</p>
+<p>의 실제 시간경로를 연구해야 한다.</p>
+<p>이것이 본 테제가 제안하는 gap-closing research program이다.</p>
+<hr>
+<p>XXVIII. Forschungsstand 2026 — 최종 판정</p>
+<p>상당히 잘 확립된 부분</p>
+<p>인간의 effective cognition은 생물학적 두뇌만의 함수가 아니며, symbolic systems, cognitive tools, practices, external representations가 인간이 가능한 cognitive task를 변화시킬 수 있다.</p>
+<p>역사적으로 강한 선행이 있는 부분</p>
+<p>새로운 cognitive technology가 단순히 업무를 빠르게 하는 데 그치지 않고 인간에게 이전에는 지나치게 복잡했던 문제를 conceptualize하게 하며, 그 변화가 다시 higher-order capability를 만들어낼 수 있다는 사고는 Engelbart까지 명확히 거슬러 올라간다.</p>
+<p>최근 빠르게 형성되는 부분</p>
+<p>2025–26년에는 AI를 human cognition과 coevolving하는 system, epistemic niche modifier, epistemic infrastructure로 보는 연구가 명시적으로 등장하고 있다.</p>
+<p>부분적인 실증이 존재하는 부분</p>
+<p>AI가 인간에게 직접 드러나지 않는 search space와 pattern을 탐색한 뒤 인간이 이해할 수 있는 구조로 연결하여 실제 scientific/mathematical insight를 낳는 사례가 이미 존재한다.</p>
+<p>아직 해결되지 않은 핵심</p>
+<p>AI capability가 증가할수록 AI가 가진 지식을 인간 cognitive space로 전달하는 능력이 같은 속도로 증가하는 것은 아니다. 현 실험은 knowledge transfer가 독립적 capability임을 보여준다.</p>
+<p>아직 검증되지 않은 본 테제의 중심 예측</p>
+<p>AI에 의해 인간 cognitive possibility frontier가 충분히 빠르게 이동하여</p>
+<p>[
+D_{\mathrm{effective}}
+\ll
+D_{\mathrm{static}}
+]</p>
+<p>가 장기간 성립하는지는 아직 실증되지 않았다.</p>
+<p>현재 문헌은 이 예측의 구성요소들을 제공하지만, 이들을 gap dynamics로 통합한 결과를 아직 제공하지 않는다.</p>
+<hr>
+<p>Schlussfolgerung</p>
+<p>본 테제의 출발점은 낙관론이 아니다.</p>
+<p>AI의 발전속도가 인간보다 훨씬 빠를 수 있다는 전제를 그대로 인정한다.</p>
+<p>인간의 생물학적 두뇌가 가까운 미래에 크게 변하지 않을 가능성도 인정한다.</p>
+<p>그러나 이 두 전제로부터</p>
+<p>«인간의 cognitive frontier도 고정되어 있다»</p>
+<p>는 결론은 따라오지 않는다.</p>
+<p>오히려 인간 문명의 역사는 새로운 representations와 cognitive technologies가 동일한 biological substrate로 가능한 cognition의 종류를 변화시켜왔음을 보여준다.</p>
+<p>AI는 이전의 cognitive technology와 달리 그 representations, abstractions, concepts, search spaces와 epistemic practices 자체를 동적으로 생성할 수 있는 최초의 대규모 기술이 될 가능성이 있다.</p>
+<p>따라서 미래를</p>
+<p>[
+\text{dynamic AI}
+\quad\text{vs}\quad
+\text{static human}
+]</p>
+<p>으로 모델링하는 것은 중요한 내생변수를 누락할 수 있다.</p>
+<p>더 적절한 그림은</p>
+<p>[
+AI(t)
+\rightarrow
+E_{AI}(t)
+\rightarrow
+\mathcal F_H(t)
+]</p>
+<p>라는 feedback을 포함해야 한다.</p>
+<p>그 결과,</p>
+<p>«AI가 인간보다 훨씬 강력해지면서도, 인간이 접근할 수 있는 cognition의 영역 역시 AI에 의해 급속하게 이동하여 두 시스템 사이의 effective cognitive gap은 현재의 정적 인간 모델에서 예상되는 것보다 훨씬 작을 수 있다.»</p>
+<p>이것이 Gap-Closing Hypothesis다.</p>
+<hr>
+<p>Kurzthesen</p>
+<p>«Biological fixity does not imply cognitive fixity.»</p>
+<p>«AI may change not only what humans know, but the conditions of what humans can know.»</p>
+<p>«The human cognitive frontier may be endogenous to AI capability.»</p>
+<p>그리고 본 논문의 가장 강한 예측은 다음이다.</p>
+<p>«Forecasts that let AI evolve while holding the human cognitive possibility frontier fixed may systematically overestimate the future effective AI–human cognitive gap.»</p>
+
+</article>
+</main>
+<footer class="site-footer">
+<p>&copy; mohokoto</p>
+</footer>
+</body>
+</html>
